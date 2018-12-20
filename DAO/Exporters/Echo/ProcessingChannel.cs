@@ -61,6 +61,7 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 		public EffectNoteCut m_effectNoteCut = new EffectNoteCut();
 		public EffectNoteDelay m_effectNoteDelay = new EffectNoteDelay();
 		public EffectPSGNoise m_effectPSGNoise = new EffectPSGNoise();
+		public EffectFineTune FineTune = new EffectFineTune();
 	}
 
 	internal class EffectArpeggio
@@ -166,7 +167,17 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 
 	// E3xx (set vibrato mode)
 	// E4xx (set fine vibrato depth)
-	// E5xx (fine tune, no support for now)
+
+	internal class EffectFineTune
+	{
+		public EffectFineTune() { Mode = EffectMode.Off; }
+
+		// E5xx
+		public EffectMode Mode;
+		public float NoteOffset;
+		public ushort NoteFrequency;
+	};
+
 	// EBxx (set sample bank, no support for now)
 
 	internal class EffectNoteCut

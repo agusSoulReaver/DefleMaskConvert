@@ -389,6 +389,7 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 				channel.m_effectVolSlide.VolSlide = EffectMode.Off;
 				channel.m_effectPSGNoise.Mode = EffectMode.Off;
 				channel.m_effectPSGNoise.EnvelopeSize = 0;
+				channel.FineTune.Mode = EffectMode.Off;
 			}
 
 			/* Note on? */
@@ -451,6 +452,17 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 						case EffectType.SetLFO:
 							bool LFOEnabled = (effectParam & 0xF0) != 0;
 							SetLFOEvent(LFOEnabled, (byte)(effectParam & 0x07), patternRow);
+							break;
+
+						case EffectType.FineTune:
+							channel.FineTune.Mode = EffectMode.Off;
+							float offset = effectParam - 0x80;
+							if (offset != 0)
+							{
+								offset = offset < 0 ? offset / 128f : offset / 127f;
+								channel.FineTune.Mode = offset > 0 ? EffectMode.Up : EffectMode.Down;
+							}
+							channel.FineTune.NoteOffset = offset;
 							break;
 					}
 				}
@@ -716,7 +728,8 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 					psg3.LastFreq = psg3.ToneFreq;
 
 					NoiseMode += 3;
-
+					if (channel.FineTune.Mode != EffectMode.Off)
+						Console.WriteLine("PSNoise Detune Not Implemented!");
 				}
 				else
 				{
@@ -748,12 +761,40 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 				if(channel.Type == ChannelType.FM || (channel.Type == ChannelType.FM6 && DACEnabled == false))
 				{
 					channel.ToneFreq = (ushort)(channel.Octave << 11 | FMFreqs[channel.Note]);
+					if (channel.FineTune.Mode != EffectMode.Off)
+						Console.WriteLine("FM Detune Not Implemented!");
 				}
 				/* PSG */
 				else if(channel.Type == ChannelType.PSG)
 				{
-					//channel.Octave--;
 					channel.ToneFreq = PSGFreqs[channel.Note][channel.Octave];
+
+					if (channel.FineTune.Mode != EffectMode.Off)
+					{
+						int detuneNote = channel.Note;
+						int detuneOctave = channel.Octave;
+						switch (channel.FineTune.Mode)
+						{
+							case EffectMode.Up:
+								if (++detuneNote >= Constants.LAST_NOTE)
+								{
+									detuneNote = 0;
+									detuneOctave = Math.Min(detuneOctave + 1, MaxOctave);
+								}
+								break;
+							case EffectMode.Down:
+								if (--detuneNote < 0)
+								{
+									detuneNote = Constants.LAST_NOTE - 1;
+									detuneOctave = Math.Max(detuneOctave - 1, 0);
+								}
+								break;
+						}
+						float anchor = channel.ToneFreq;
+						float detuneFreq = PSGFreqs[detuneNote][detuneOctave];
+						channel.FineTune.NoteFrequency = channel.ToneFreq;
+						channel.FineTune.NoteFrequency += (ushort)((detuneFreq - anchor) * channel.FineTune.NoteOffset);
+					}
 				}
 
 				/* Reset last tone / new tone freqs */
@@ -774,6 +815,8 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 				else
 				{
 					NoteOnEvent(channel.ESFId, channel.Note, channel.Octave, patternRow);
+					if (channel.FineTune.Mode != EffectMode.Off)
+						SetFrequency(channel.Id, channel.FineTune.NoteFrequency, patternRow, false);
 				}
 			}
 			return;
@@ -1482,7 +1525,7 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 			new ushort[]{ 851,568,284,142, 71, 31, 15, 6,  0 }, // g
 			new ushort[]{ 851,536,268,134, 67, 33, 16, 5,  0 }, // g#
 			new ushort[]{ 851,506,253,126, 63, 31, 15, 4,  0 }, // a
-			new ushort[]{ 851,477,438,119, 59, 29, 14, 3,  0 }, // a#
+			new ushort[]{ 851,477,238,119, 59, 29, 14, 3,  0 }, // a#
 			new ushort[]{ 851,450,225,112, 56, 28, 14, 2,  0 }, // b
 		};
 

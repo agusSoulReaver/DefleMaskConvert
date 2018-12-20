@@ -75,6 +75,7 @@ namespace DefleMaskConvert
 		//NoteSlideDown				= 0xe2, // Note slide down
 		//SetVibratoMode				= 0xe3, // Vibrato mode
 		//SetFineVibrato				= 0xe4, // Fine vibrato depth
+		FineTune					= 0xe5, // Fine vibrato depth
 		//NoteCut						= 0xec, // Note cut
 		NoteDelay					= 0xed,	// Note delay
 		Jump						= 0x0b, // Position jump
