@@ -412,14 +412,14 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 				if(channel.Id == ChannelId.PSG3 && PSGNoiseFreq)
 				{
 					ProcessingChannel psg4 = _channels[(int)ChannelId.PSG4];
-					byte octave = (byte)(psg4.EffectOctave - 1);
+					byte octave = psg4.EffectOctave;
 					byte note = psg4.EffectNote;
 					channel.EffectSemitone = PSGFreqs[note][octave];
 					channel.EffectOctave = octave;
 				}
 				else if(channel.Id >= ChannelId.PSG1)
 				{
-					channel.EffectSemitone = PSGFreqs[channel.EffectNote][Math.Max(channel.EffectOctave - 1, 0)];
+					channel.EffectSemitone = PSGFreqs[channel.EffectNote][channel.EffectOctave];
 				}
 				else
 				{
@@ -639,7 +639,7 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 						if (channel.Id == ChannelId.PSG3 && PSGNoiseFreq)
 						{
 							ProcessingChannel psg4 = _channels[(int)ChannelId.PSG4];
-							byte octave = (byte)(psg4.m_effectPortaNote.PortaNoteCurrentOctave - 1);
+							byte octave = psg4.m_effectPortaNote.PortaNoteCurrentOctave;
 							byte note = psg4.m_effectPortaNote.PortaNoteCurrentNote;
 							channel.EffectSemitone = PSGFreqs[note][octave];
 							channel.EffectOctave = octave;
@@ -1004,10 +1004,10 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 				{
 					float sine = (float)(Math.Sin((float)channel.m_effectVibrato.sineTime / 10.0f));
 
-					if (channel.Id >= ChannelId.PSG1)
-					{
-						sine *= 0.5f;
-					}
+					//if (channel.Id >= ChannelId.PSG1)
+					//{
+					//	sine *= 0.5f;
+					//}
 
 					short pitchOffset = (short)(sine * (float)channel.m_effectVibrato.sineAmplitude);
 
