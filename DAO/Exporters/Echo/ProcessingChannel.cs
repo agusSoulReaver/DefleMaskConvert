@@ -50,6 +50,11 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 		public byte lastFMS = 0;
 		public byte lastAMS = 0;
 
+		public bool MustChangeInstrument
+		{
+			get { return NewInstrument != Instrument && NewInstrument != 0xff; }
+		}
+
 		public EffectArpeggio m_effectArpeggio = new EffectArpeggio();
 		public EffectPortmento m_effectPortmento = new EffectPortmento();
 		public EffectPortaNote m_effectPortaNote = new EffectPortaNote();

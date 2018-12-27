@@ -253,7 +253,7 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 			}
 
 			/* Volume updated? */
-			if(channel.NewVolume != channel.Volume && channel.NewVolume != 0xff)
+			if (channel.NewVolume != channel.Volume && channel.NewVolume != 0xff && !channel.MustChangeInstrument)
 			{
 				channel.Volume = channel.NewVolume;
 				channel.LastVolume = channel.NewVolume;
@@ -266,7 +266,7 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 			/* Instrument updated? */
 			if (channel.Type != ChannelType.FM6 || !DACEnabled)	// PCM is an Echo instrument, but uses NoteOn to set+play
 			{
-				if (channel.NewInstrument != channel.Instrument && channel.NewInstrument != 0xff)
+				if (channel.MustChangeInstrument)
 				{
 					channel.Instrument = channel.NewInstrument;
 
