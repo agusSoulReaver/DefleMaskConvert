@@ -1004,10 +1004,10 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 				{
 					float sine = (float)(Math.Sin((float)channel.m_effectVibrato.sineTime / 10.0f));
 
-					//if (channel.Id >= ChannelId.PSG1)
-					//{
-					//	sine *= 0.5f;
-					//}
+					if (channel.Id < ChannelId.PSG1)
+					{
+						sine *= 2f;
+					}
 
 					short pitchOffset = (short)(sine * (float)channel.m_effectVibrato.sineAmplitude);
 
