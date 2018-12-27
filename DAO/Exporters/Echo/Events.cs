@@ -298,6 +298,8 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 			byte panL = (byte)((pan & 0x10) >> 4);
 			byte panR = (byte)(pan & 0x01);
 			pan = (byte)((panL << 1) | panR);
+			if (pan == 0) pan = 0x3;
+
 			byte regB4Pan = (byte)(pan << 6);
 
 			// %LRAA0FFF
