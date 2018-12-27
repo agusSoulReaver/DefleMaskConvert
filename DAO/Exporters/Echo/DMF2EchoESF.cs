@@ -255,14 +255,17 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 			}
 
 			/* Volume updated? */
-			if (channel.NewVolume != channel.Volume && channel.NewVolume != 0xff && !channel.MustChangeInstrument)
+			if (channel.NewVolume != channel.Volume && channel.NewVolume != 0xff)
 			{
 				channel.Volume = channel.NewVolume;
 				channel.LastVolume = channel.NewVolume;
-				if(channel.Type == ChannelType.FM || channel.Type == ChannelType.FM6)
-					SetVolumeEvent(channel.ESFId, channel.Volume, patternRow);
-				else if(channel.Type == ChannelType.PSG || channel.Type == ChannelType.PSG4)
-					SetVolumeEvent(channel.ESFId, channel.Volume, patternRow);
+				if (!channel.MustChangeInstrument)
+				{
+					if (channel.Type == ChannelType.FM || channel.Type == ChannelType.FM6)
+						SetVolumeEvent(channel.ESFId, channel.Volume, patternRow);
+					else if (channel.Type == ChannelType.PSG || channel.Type == ChannelType.PSG4)
+						SetVolumeEvent(channel.ESFId, channel.Volume, patternRow);
+				}
 			}
 
 			/* Instrument updated? */
