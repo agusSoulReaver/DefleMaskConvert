@@ -13,9 +13,14 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 		string GetComment(out int tabAmount);
 	}
 
-	public struct NoteOnEvent : IEchoEvent
+	public interface IEchoChannelEvent : IEchoEvent
 	{
-		public readonly ESFChannel Channel;
+		ESFChannel Channel { get; }
+	}
+
+	public struct NoteOnEvent : IEchoChannelEvent
+	{
+		public ESFChannel Channel { get; private set; }
 		public readonly byte Note, Octave;
 		private readonly byte _data;
 
@@ -72,9 +77,9 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 		}
 	}
 
-	public struct NoteOffEvent : IEchoEvent
+	public struct NoteOffEvent : IEchoChannelEvent
 	{
-		public readonly ESFChannel Channel;
+		public ESFChannel Channel { get; private set; }
 
 		public NoteOffEvent(ESFChannel channel)
 			: this()
@@ -94,9 +99,9 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 		}
 	}
 
-	public struct SetVolumeEvent : IEchoEvent
+	public struct SetVolumeEvent : IEchoChannelEvent
 	{
-		public readonly ESFChannel Channel;
+		public ESFChannel Channel { get; private set; }
 		public readonly byte Volume;
 
 		public SetVolumeEvent(ESFChannel channel, byte volume)
@@ -118,9 +123,9 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 		}
 	}
 
-	public struct SetFrequencyEvent : IEchoEvent
+	public struct SetFrequencyEvent : IEchoChannelEvent
 	{
-		public readonly ESFChannel Channel;
+		public ESFChannel Channel { get; private set; }
 		public readonly ushort Frequency;
 		private readonly byte[] _data;
 
@@ -201,9 +206,9 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 		}
 	}
 
-	public struct SetInstrumentEvent : IEchoEvent
+	public struct SetInstrumentEvent : IEchoChannelEvent
 	{
-		public readonly ESFChannel Channel;
+		public ESFChannel Channel { get; private set; }
 		public readonly byte InstrumentIndex;
 
 		public SetInstrumentEvent(ESFChannel channel, byte instrumentIndex)
@@ -230,14 +235,24 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 
 	public struct DelayEvent : IEchoEvent
 	{
+		public const int SHORT_DELAY_LIMIT = 0x10;
+		public const int DELAY_LIMIT = byte.MaxValue + 1;
+
 		public readonly byte Ticks;
 		public readonly bool IsShort;
+
+		public bool IsFullDelay { get { return !IsShort && Ticks == 0; } }
 
 		public DelayEvent(byte ticks, bool isShort)
 			: this()
 		{
 			Ticks = isShort ? (byte)((ticks-1) & 0x0F) : ticks;
 			IsShort = isShort;
+		}
+
+		public int GetRealTicks()
+		{
+			return IsShort ? Ticks + 1 : Ticks > 0 ? Ticks : DELAY_LIMIT;
 		}
 
 		public byte[] GetBinaryData()
@@ -260,9 +275,9 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 		}
 	}
 
-	public struct LockChannelEvent : IEchoEvent
+	public struct LockChannelEvent : IEchoChannelEvent
 	{
-		public readonly ESFChannel Channel;
+		public ESFChannel Channel { get; private set; }
 
 		public LockChannelEvent(ESFChannel channel)
 			: this()
@@ -282,9 +297,9 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 		}
 	}
 
-	public struct SetFMParametersEvent : IEchoEvent
+	public struct SetFMParametersEvent : IEchoChannelEvent
 	{
-		public readonly ESFChannel Channel;
+		public ESFChannel Channel { get; private set; }
 		public readonly byte Pan, AMS, FMS;
 		private readonly byte _data;
 

@@ -56,6 +56,8 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 			if (data.LoopWholeTrack) GoToLoopEvent(esf.Footer);
 			StopPlaybackEvent(esf.Footer);
 
+			ESFOptimizer.Optimize(esf);
+
 			return esf;
 		}
 
@@ -1326,14 +1328,11 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 			while(ticks > byte.MaxValue)
 			{
 				output.Add(new DelayEvent(0, false));
-				ticks -= byte.MaxValue + 1;
+				ticks -= DelayEvent.DELAY_LIMIT;
 			}
 
 			if (ticks > 0)
-			{
-				if(ticks <= 0x10) output.Add(new DelayEvent((byte)ticks, true));
-				else output.Add(new DelayEvent((byte)ticks, false));
-			}
+				output.Add(new DelayEvent((byte)ticks, ticks <= DelayEvent.SHORT_DELAY_LIMIT));
 		}
 
 		static private void SetLFOEvent(bool enable, byte frequencyIndex, EchoPatternRow patternRow)

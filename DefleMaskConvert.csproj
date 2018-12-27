@@ -67,6 +67,7 @@
     <Compile Include="DAO\Exporters\Echo\EchoESF.cs" />
     <Compile Include="DAO\Exporters\Echo\EchoESM2ASM.cs" />
     <Compile Include="DAO\Exporters\Echo\EchoInstruments2ASM.cs" />
+    <Compile Include="DAO\Exporters\Echo\ESFOptimizer.cs" />
     <Compile Include="DAO\Exporters\Echo\Events.cs" />
     <Compile Include="DAO\Exporters\Echo\FMInstrument.cs" />
     <Compile Include="DAO\Exporters\Echo\Instrument.cs" />
