@@ -31,7 +31,7 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 			{
 				foreach (var row in page.Rows)
 				{
-					_writer.Comment(string.Format("Page {0} Row {1}", page.Index, row.Index));
+					_writer.Comment(string.Format("Page {0} Row {1}", page.Index.ToString("X").PadLeft(2, '0'), row.Index.ToString().PadLeft(3, '0')));
 					foreach (var eventData in row.Events)
 					{
 						WriteEvent(eventData);
