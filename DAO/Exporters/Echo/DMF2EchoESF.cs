@@ -280,9 +280,9 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 					SetInstrumentEvent(channel.ESFId, instrumentIdx, patternRow);
 
 					/* Echo resets the volume if the instrument is changed */
-					if (channel.Type == ChannelType.FM || channel.Type == ChannelType.FM6)
+					if ((channel.Type == ChannelType.FM || channel.Type == ChannelType.FM6) && channel.LastVolume < 0x7F)
 						SetVolumeEvent(channel.ESFId, channel.LastVolume, patternRow);
-					else if (channel.Type == ChannelType.PSG || channel.Type == ChannelType.PSG4)
+					else if ((channel.Type == ChannelType.PSG || channel.Type == ChannelType.PSG4) && channel.LastVolume < 0xF)
 						SetVolumeEvent(channel.ESFId, channel.LastVolume, patternRow);
 
 					//Set LFO and AMS
