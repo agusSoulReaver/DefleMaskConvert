@@ -11,14 +11,16 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 	{
 		byte[] GetBinaryData();
 		string GetComment(out int tabAmount);
+		bool IsSameKind(IEchoEvent other);
 	}
 
 	public interface IEchoChannelEvent : IEchoEvent
 	{
 		ESFChannel Channel { get; }
+		bool HadSameParameters(IEchoChannelEvent other);
 	}
 
-	public struct NoteOnEvent : IEchoChannelEvent
+	public struct NoteOnEvent : IEchoEvent
 	{
 		public ESFChannel Channel { get; private set; }
 		public readonly byte Note, Octave;
@@ -75,9 +77,14 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 					return string.Format("Note {0}{1} on channel {2}", Constants.GetNoteName(Note), Octave, channelName);
 			}
 		}
+
+		public bool IsSameKind(IEchoEvent other)
+		{
+			return other is NoteOnEvent && ((NoteOnEvent)other).Channel == this.Channel;
+		}
 	}
 
-	public struct NoteOffEvent : IEchoChannelEvent
+	public struct NoteOffEvent : IEchoEvent
 	{
 		public ESFChannel Channel { get; private set; }
 
@@ -96,6 +103,11 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 		{
 			tabAmount = 3;
 			return string.Format("Note off channel {0}", Constants.GetChannelName(Channel));
+		}
+
+		public bool IsSameKind(IEchoEvent other)
+		{
+			return other is NoteOffEvent && ((NoteOffEvent)other).Channel == this.Channel;
 		}
 	}
 
@@ -121,9 +133,24 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 			tabAmount = 2;
 			return string.Format("Set volume for channel {0}", Constants.GetChannelName(Channel));
 		}
+
+		public bool IsSameKind(IEchoEvent other)
+		{
+			return other is SetVolumeEvent && ((SetVolumeEvent)other).Channel == this.Channel;
+		}
+
+		public bool HadSameParameters(IEchoChannelEvent other)
+		{
+			if (this.IsSameKind(other))
+			{
+				return ((SetVolumeEvent)other).Volume == this.Volume;
+			}
+
+			return false;
+		}
 	}
 
-	public struct SetFrequencyEvent : IEchoChannelEvent
+	public struct SetFrequencyEvent : IEchoEvent
 	{
 		public ESFChannel Channel { get; private set; }
 		public readonly ushort Frequency;
@@ -204,6 +231,11 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 
 			return null;
 		}
+
+		public bool IsSameKind(IEchoEvent other)
+		{
+			return other is SetFrequencyEvent && ((SetFrequencyEvent)other).Channel == this.Channel;
+		}
 	}
 
 	public struct SetInstrumentEvent : IEchoChannelEvent
@@ -230,6 +262,21 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 		{
 			tabAmount = 2;
 			return string.Format("Set instrument for channel {0}", Constants.GetChannelName(Channel));
+		}
+
+		public bool IsSameKind(IEchoEvent other)
+		{
+			return other is SetInstrumentEvent && ((SetInstrumentEvent)other).Channel == this.Channel;
+		}
+
+		public bool HadSameParameters(IEchoChannelEvent other)
+		{
+			if (this.IsSameKind(other))
+			{
+				return ((SetInstrumentEvent)other).InstrumentIndex == this.InstrumentIndex;
+			}
+
+			return false;
 		}
 	}
 
@@ -273,9 +320,14 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 
 			return string.Format("Delay {0} ticks", Ticks == 0 ? 0x100 : Ticks);
 		}
+
+		public bool IsSameKind(IEchoEvent other)
+		{
+			return other is DelayEvent;
+		}
 	}
 
-	public struct LockChannelEvent : IEchoChannelEvent
+	public struct LockChannelEvent : IEchoEvent
 	{
 		public ESFChannel Channel { get; private set; }
 
@@ -294,6 +346,11 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 		{
 			tabAmount = 3;
 			return string.Format("Lock channel {0}", Constants.GetChannelName(Channel));
+		}
+
+		public bool IsSameKind(IEchoEvent other)
+		{
+			return other is LockChannelEvent && ((LockChannelEvent)other).Channel == this.Channel;
 		}
 	}
 
@@ -345,6 +402,20 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 				((Pan & 0x1) != 0) ? "R" : "-",
 				AMS, FMS);
 		}
+
+		public bool IsSameKind(IEchoEvent other)
+		{
+			return other is SetFMParametersEvent && ((SetFMParametersEvent)other).Channel == this.Channel;
+		}
+
+
+		public bool HadSameParameters(IEchoChannelEvent other)
+		{
+			if (this.IsSameKind(other))
+				return ((SetFMParametersEvent)other)._data == this._data;
+
+			return false;
+		}
 	}
 
 	public struct SetBankRegisterEvent : IEchoEvent
@@ -380,6 +451,11 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 			tabAmount = 1;
 			return _comment;
 		}
+
+		public bool IsSameKind(IEchoEvent other)
+		{
+			return other is SetBankRegisterEvent;
+		}
 	}
 
 	public struct PlaybackEvent : IEchoEvent
@@ -408,6 +484,11 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 		{
 			tabAmount = 3;
 			return Action.ToString();
+		}
+
+		public bool IsSameKind(IEchoEvent other)
+		{
+			return other is PlaybackEvent;
 		}
 	}
 

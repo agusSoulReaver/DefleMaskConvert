@@ -271,7 +271,7 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 			/* Instrument updated? */
 			if (channel.Type != ChannelType.FM6 || !DACEnabled)	// PCM is an Echo instrument, but uses NoteOn to set+play
 			{
-				if (channel.MustChangeInstrument)
+				if (channel.MustChangeInstrument && channel.Note != (byte)Notes.Off)
 				{
 					channel.Instrument = channel.NewInstrument;
 
