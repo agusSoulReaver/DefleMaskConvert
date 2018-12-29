@@ -243,7 +243,7 @@ namespace DefleMaskConvert
 
 			try
 			{
-				EchoESM2ASM.SaveFile(exportAssemblyDialog.FileName, data);
+				EchoESM2ASM.SaveFile(exportAssemblyDialog.FileName, data, dmf.SongName, dmf.SongAuthor);
 				Cursor.Current = Cursors.Default;
 			}
 			catch (Exception)
@@ -302,7 +302,7 @@ namespace DefleMaskConvert
 				string path = Path.Combine(exportFolderBrowserDialog.SelectedPath, song.ExportName + ".asm");
 				try
 				{
-					EchoESM2ASM.SaveFile(path, data);
+					EchoESM2ASM.SaveFile(path, data, song.SongName, song.SongAuthor);
 				}
 				catch (Exception)
 				{

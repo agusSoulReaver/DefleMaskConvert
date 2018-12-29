@@ -11,12 +11,15 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 	public class EchoESM2ASM
 	{
 		private Moto68KWriter _writer;
-		private uint _size;
 
-		private EchoESM2ASM(TextWriter stream, EchoESF data)
+		private EchoESM2ASM(TextWriter stream, EchoESF data, string songName, string author)
 		{
 			_writer = new Moto68KWriter(stream);
-			_size = 0;
+
+			_writer.Comment(string.Format("Name: {0}", songName));
+			_writer.Comment(string.Format("Author: {0}", author));
+			_writer.Comment(string.Format("Size: {0} bytes", CalculateSize(data)));
+			_writer.NewLine();
 
 			if (data.Header.Count > 0)
 			{
@@ -55,7 +58,6 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 		private void WriteEvent(IEchoEvent eventData)
 		{
 			byte[] data = eventData.GetBinaryData();
-			_size += (uint)data.Length;
 			_writer.DefineConstantHeader(Moto68KWriter.Sizes.Byte);
 
 			for (int i = 0; i < data.Length; i++)
@@ -75,14 +77,41 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 				_writer.NewLine();
 		}
 
-		static public void SaveFile(string path, EchoESF data)
+		private int CalculateSize(EchoESF data)
+		{
+			int size = CalculateSize(data.Header);
+			foreach (var page in data.Pages)
+			{
+				foreach (var row in page.Rows)
+				{
+					size += CalculateSize(row.Events);
+				}
+			}
+			size += CalculateSize(data.Footer);
+			return size;
+		}
+
+		private int CalculateSize(List<IEchoEvent> events)
+		{
+			int size = 0;
+
+			foreach(var item in events)
+			{
+				byte[] data = item.GetBinaryData();
+				size += data.Length;
+			}
+
+			return size;
+		}
+
+		static public void SaveFile(string path, EchoESF data, string songName, string author)
 		{
 			File.WriteAllLines(path, new string[] { string.Empty });
 
 			using (FileStream file = File.OpenWrite(path))
 			{
 				TextWriter stream = new StreamWriter(file, Encoding.ASCII);
-				new EchoESM2ASM(stream, data);
+				new EchoESM2ASM(stream, data, songName, author);
 
 				stream.Flush();
 				stream.Close();
