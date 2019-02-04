@@ -84,9 +84,12 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 						firstNote = (byte)note.Note;
 						firstOctave = (byte)note.Octave;
 
-						if (mustSetPSGDefaultInstrument && channel.Type == ChannelType.PSG && !note.IsEmpty && note.Instrument < 0)
+						if (mustSetPSGDefaultInstrument && channel.Type == ChannelType.PSG && !note.IsEmpty)
 						{
 							mustSetPSGDefaultInstrument = false;
+							if (note.Instrument >= 0 && data.Instruments[note.Instrument] is PSGInstrumentData)
+								continue;
+
 							note.Instrument = (short)data.Instruments.IndexOf(PSGInstrumentData.DEFAULT_PSG_INSTRUMENT);
 						}
 					}
@@ -273,22 +276,23 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 			{
 				if (channel.MustChangeInstrument && channel.Note != (byte)Notes.Off)
 				{
-					channel.Instrument = channel.NewInstrument;
+					if (channel.Type == ChannelType.FM || data.Instruments[channel.NewInstrument] is PSGInstrumentData)
+					{
+						channel.Instrument = channel.NewInstrument;
+						byte instrumentIdx = (byte)activeInstruments.IndexOf(data.Instruments[channel.Instrument]);
+						SetInstrumentEvent(channel.ESFId, instrumentIdx, patternRow);
 
-					byte instrumentIdx = (byte)activeInstruments.IndexOf(data.Instruments[channel.Instrument]);
-
-					SetInstrumentEvent(channel.ESFId, instrumentIdx, patternRow);
+						//Set LFO and AMS
+						FMInstrumentData fm = data.Instruments[channel.Instrument] as FMInstrumentData;
+						FMS = (fm != null) ? fm.LFO : (byte)0;
+						AMS = (fm != null) ? fm.LFO2 : (byte)0;
+					}
 
 					/* Echo resets the volume if the instrument is changed */
 					if ((channel.Type == ChannelType.FM || channel.Type == ChannelType.FM6) && channel.LastVolume < 0x7F)
 						SetVolumeEvent(channel.ESFId, channel.LastVolume, patternRow);
 					else if ((channel.Type == ChannelType.PSG || channel.Type == ChannelType.PSG4) && channel.LastVolume < 0xF)
 						SetVolumeEvent(channel.ESFId, channel.LastVolume, patternRow);
-
-					//Set LFO and AMS
-					FMInstrumentData fm = data.Instruments[channel.Instrument] as FMInstrumentData;
-					FMS = (fm != null) ? fm.LFO : (byte)0;
-					AMS = (fm != null) ? fm.LFO2 : (byte)0;
 				}
 			}
 
@@ -726,6 +730,13 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 					/* Get the frequency value */
 					psg3.ToneFreq = PSGFreqs[channel.Note][channel.Octave];
 
+					if (channel.FineTune.Mode != EffectMode.Off)
+					{
+						channel.ToneFreq = psg3.ToneFreq;
+						SetUpPSGFineTuneParameters(channel);
+						psg3.ToneFreq = channel.FineTune.NoteFrequency;
+					}
+
 					/* Only update frequency if it's not the same as the last */
 					if (psg3.LastFreq != psg3.ToneFreq)
 						SetFrequencyEvent(psg3.ESFId, psg3.ToneFreq, patternRow);
@@ -733,8 +744,6 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 					psg3.LastFreq = psg3.ToneFreq;
 
 					NoiseMode += 3;
-					if (channel.FineTune.Mode != EffectMode.Off)
-						Console.WriteLine("PSNoise Detune Not Implemented!");
 				}
 				else
 				{
@@ -767,25 +776,19 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 				{
 					channel.ToneFreq = (ushort)(channel.Octave << 11 | FMFreqs[channel.Note]);
 					if (channel.FineTune.Mode != EffectMode.Off)
-						Console.WriteLine("FM Detune Not Implemented!");
-				}
-				/* PSG */
-				else if(channel.Type == ChannelType.PSG)
-				{
-					channel.ToneFreq = PSGFreqs[channel.Note][channel.Octave];
-
-					if (channel.FineTune.Mode != EffectMode.Off)
 					{
 						int detuneNote = channel.Note;
 						int detuneOctave = channel.Octave;
+
+						float anchor = 0;
+						float detuneFreq = 0;
+						float ratio = channel.FineTune.NoteOffset;
+
 						switch (channel.FineTune.Mode)
 						{
 							case EffectMode.Up:
-								if (++detuneNote >= Constants.LAST_NOTE)
-								{
-									detuneNote = 0;
-									detuneOctave = Math.Min(detuneOctave + 1, MaxOctave);
-								}
+								anchor = FMSlideFreqs[detuneNote];
+								detuneFreq = FMSlideFreqs[detuneNote + 1];
 								break;
 							case EffectMode.Down:
 								if (--detuneNote < 0)
@@ -793,13 +796,23 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 									detuneNote = Constants.LAST_NOTE - 1;
 									detuneOctave = Math.Max(detuneOctave - 1, 0);
 								}
+								anchor = FMSlideFreqs[detuneNote + 1];
+								detuneFreq = FMSlideFreqs[detuneNote];
+								ratio *= -1;
 								break;
 						}
-						float anchor = channel.ToneFreq;
-						float detuneFreq = PSGFreqs[detuneNote][detuneOctave];
-						channel.FineTune.NoteFrequency = channel.ToneFreq;
-						channel.FineTune.NoteFrequency += (ushort)((detuneFreq - anchor) * channel.FineTune.NoteOffset);
+						channel.FineTune.NoteFrequency = (ushort)anchor;
+						channel.FineTune.NoteFrequency += (ushort)((detuneFreq - anchor) * ratio);
+						channel.FineTune.NoteOctave = (byte)detuneOctave;
 					}
+				}
+				/* PSG */
+				else if(channel.Type == ChannelType.PSG)
+				{
+					channel.ToneFreq = PSGFreqs[channel.Note][channel.Octave];
+
+					if (channel.FineTune.Mode != EffectMode.Off)
+						SetUpPSGFineTuneParameters(channel);
 				}
 
 				/* Reset last tone / new tone freqs */
@@ -821,10 +834,45 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 				{
 					NoteOnEvent(channel.ESFId, channel.Note, channel.Octave, patternRow);
 					if (channel.FineTune.Mode != EffectMode.Off)
+					{
+						channel.Octave = channel.FineTune.NoteOctave;
 						SetFrequency(channel.Id, channel.FineTune.NoteFrequency, patternRow, false);
+					}
 				}
 			}
 			return;
+		}
+
+		static private void SetUpPSGFineTuneParameters(ProcessingChannel channel)
+		{
+			int detuneNote = channel.Note;
+			int detuneOctave = channel.Octave;
+			float ratio = channel.FineTune.NoteOffset;
+
+			switch (channel.FineTune.Mode)
+			{
+				case EffectMode.Up:
+					if (++detuneNote >= Constants.LAST_NOTE)
+					{
+						detuneNote = 0;
+						detuneOctave = Math.Min(detuneOctave + 1, MaxOctave);
+					}
+					break;
+				case EffectMode.Down:
+					if (--detuneNote < 0)
+					{
+						detuneNote = Constants.LAST_NOTE - 1;
+						detuneOctave = Math.Max(detuneOctave - 1, 0);
+					}
+					ratio *= -1;
+					break;
+			}
+
+			float anchor = channel.ToneFreq;
+			float detuneFreq = PSGFreqs[detuneNote][detuneOctave];
+			channel.FineTune.NoteFrequency = channel.ToneFreq;
+			channel.FineTune.NoteFrequency += (ushort)((detuneFreq - anchor) * ratio);
+			channel.FineTune.NoteOctave = (byte)detuneOctave;
 		}
 
 		static private int ProcessActiveEffects(ProcessingChannel channel, EchoPatternRow patternRow)

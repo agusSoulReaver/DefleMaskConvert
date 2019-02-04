@@ -181,6 +181,7 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 		public EffectMode Mode;
 		public float NoteOffset;
 		public ushort NoteFrequency;
+		public byte NoteOctave;
 	};
 
 	// EBxx (set sample bank, no support for now)
