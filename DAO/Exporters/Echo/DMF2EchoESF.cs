@@ -190,7 +190,7 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 
 							for (int CurrChannel = 0; CurrChannel < _channels.Length; CurrChannel++)
 							{
-								numEffectsProcessed += ProcessActiveEffects(_channels[CurrChannel], patternRow);
+								numEffectsProcessed += ProcessActiveEffects(_channels[CurrChannel], patternRow, data, activeInstruments);
 							}
 
 							if (numEffectsProcessed > 0)
@@ -700,7 +700,7 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 			}
 		}
 
-		static private void NoteOn(ProcessingChannel channel, EchoPatternRow patternRow, DMFData data, List<InstrumentData> activeInstruments)
+		static private void NoteOn(ProcessingChannel channel, EchoPatternRow patternRow, DMFData data, List<InstrumentData> activeInstruments, bool processDelay=true)
 		{
 			/* Is this the PSG noise channel? */
 			if (channel.Type == ChannelType.PSG4)
@@ -762,7 +762,7 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 					}
 				}
 
-				NoteOnEvent(channel.ESFId, NoiseMode, 0, patternRow);
+				NoteOnEvent(channel.ESFId, NoiseMode, 0, patternRow, processDelay);
 			}
 
 			/* Skip if this is the PSG3 channel and its frequency value is already used for the noise channel */
@@ -828,11 +828,11 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 					//SetPCMRateEvent(PCM_FREQ_DEFAULT, patternRow);
 
 					//PCM note on
-					NoteOnEvent(ESFChannel.DAC, sampleInstrumentIdx, 0, patternRow);
+					NoteOnEvent(ESFChannel.DAC, sampleInstrumentIdx, 0, patternRow, processDelay);
 				}
 				else
 				{
-					NoteOnEvent(channel.ESFId, channel.Note, channel.Octave, patternRow);
+					NoteOnEvent(channel.ESFId, channel.Note, channel.Octave, patternRow, processDelay);
 					if (channel.FineTune.Mode != EffectMode.Off)
 					{
 						channel.Octave = channel.FineTune.NoteOctave;
@@ -875,7 +875,7 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 			channel.FineTune.NoteOctave = (byte)detuneOctave;
 		}
 
-		static private int ProcessActiveEffects(ProcessingChannel channel, EchoPatternRow patternRow)
+		static private int ProcessActiveEffects(ProcessingChannel channel, EchoPatternRow patternRow, DMFData data, List<InstrumentData> activeInstruments)
 		{
 			if (!channel.Export) return 0;
 
@@ -1101,6 +1101,16 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 				numEffectsProcess++;
 			}
 
+			if (channel.m_effectNoteDelay.NoteDelay != EffectMode.Off)
+			{
+				if (--channel.m_effectNoteDelay.NoteDelayOffset == 0)
+				{
+					channel.m_effectNoteDelay.NoteDelay = EffectMode.Off;
+					NoteOn(channel, patternRow, data, activeInstruments, false);
+				}
+				numEffectsProcess++;
+			}
+
 			return numEffectsProcess;
 		}
 
@@ -1280,6 +1290,11 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 				return EffectStage.Continue;
 			}
 
+			if (channel.m_effectNoteDelay.NoteDelay != EffectMode.Off)
+			{
+				return EffectStage.Continue;
+			}
+
 			return EffectStage.Off;
 		}
 
@@ -1304,9 +1319,9 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 			patternRow.Events.Add(new SetFrequencyEvent(channel, freq));
 		}
 
-		static private void NoteOnEvent(ESFChannel channel, byte note, byte octave, EchoPatternRow patternRow)
+		static private void NoteOnEvent(ESFChannel channel, byte note, byte octave, EchoPatternRow patternRow, bool processDelay)
 		{
-			WaitEvent(patternRow.Events);
+			if(processDelay) WaitEvent(patternRow.Events);
 			patternRow.Events.Add(new NoteOnEvent(channel, ESF_CHANNEL_TYPES[(int)channel], note, octave));
 		}
 

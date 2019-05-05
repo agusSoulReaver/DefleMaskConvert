@@ -24,6 +24,8 @@ namespace DefleMaskConvert
 	public partial class EntryPoint : Form
 	{
 		private const string INSTRUMENT_BINARY_NAME = "instr_{0}.{1}";
+		private const string SFX_NAME_MULTI = "{0}_{1}";
+		private const string SFX_NAME_SIMPLE = "{0}";
 		private const int INSTRUMENT_BINARY_NAME_PAD_LEFT = 2;
 
 		private ProjectData _project;
@@ -95,7 +97,6 @@ namespace DefleMaskConvert
 			DMFData data;
 			var result = importer.ParseData(out data);
 			data.FilePath = path;
-			data.ExportName = GetSongExportName(path);
 
 			string fileName = Path.GetFileName(openDefleMaskDialog.FileName);
 			switch(result)
@@ -148,8 +149,29 @@ namespace DefleMaskConvert
 					break;
 
 				case DMFImporter.Result.OK:
-					_project.Songs.Add(data);
-					RefreshDetailsView();
+					if (IsSFXMode())
+					{
+						data.ExportName = GetSongExportName(path, from item in _project.SFXs select item.ExportName);
+						var sfx = new SFXData();
+						sfx.Path = data.FilePath;
+						sfx.Export = data.Export;
+						sfx.Source = data;
+						sfx.ExportName = data.ExportName;
+						for (int i = 0; i < data.PatternPages; i++)
+						{
+							var fx = new DMFData(data, i);
+							sfx.FXs.Add(fx);
+						}
+						FilterSFXsNames(sfx);
+						_project.SFXs.Add(sfx);
+						RefreshSFXsView();
+					}
+					else
+					{
+						data.ExportName = GetSongExportName(path, from item in _project.Songs select item.ExportName);
+						_project.Songs.Add(data);
+						RefreshDetailsView();
+					}
 					break;
 			}
 
@@ -157,10 +179,14 @@ namespace DefleMaskConvert
 			RefreshExportEchoButtons();
 		}
 
-		private string GetSongExportName(string path)
+		private bool IsSFXMode()
+		{
+			return audioSection.SelectedTab == sfxsMode;
+		}
+
+		private string GetSongExportName(string path, IEnumerable<string> names)
 		{
 			string name = Path.GetFileNameWithoutExtension(path);
-			IEnumerable<string> names = from item in _project.Songs select item.ExportName;
 			foreach(string existingName in names)
 			{
 				if(name == existingName)
@@ -204,6 +230,18 @@ namespace DefleMaskConvert
 			dmf.Export = e.Node.Checked;
 		}
 
+		private void sfxsTreeView_AfterCheck(object sender, TreeViewEventArgs e)
+		{
+			SFXData containerData = e.Node.Tag as SFXData;
+			if (containerData == null)
+			{
+				DMFData sfx = (DMFData)e.Node.Tag;
+				sfx.Export = e.Node.Checked;
+			}
+			else
+				containerData.Export = e.Node.Checked;
+		}
+
 		#region Export
 		private void echoInstrumentsASMToolStripMenuItem_Click(object sender, EventArgs e)
 		{
@@ -212,7 +250,7 @@ namespace DefleMaskConvert
 			if (exportAssemblyDialog.ShowDialog() != DialogResult.OK) return;
 			
 			Cursor.Current = Cursors.WaitCursor;
-			List<Instrument> instruments = DMF2EchoInstruments.Convert(DMFGlobalInstruments.GetActiveInstruments(_project.Songs));
+			List<Instrument> instruments = DMF2EchoInstruments.Convert(DMFGlobalInstruments.GetActiveInstruments(_project.Songs, _project.SFXs));
 			try
 			{
 				EchoInstruments2ASM.SaveFile(exportAssemblyDialog.FileName, instruments);
@@ -239,7 +277,7 @@ namespace DefleMaskConvert
 			if (exportAssemblyDialog.ShowDialog() != DialogResult.OK) return;
 			
 			Cursor.Current = Cursors.WaitCursor;
-			EchoESF data = DMF2EchoESF.Convert(dmf, DMFGlobalInstruments.GetActiveInstruments(_project.Songs));
+			EchoESF data = DMF2EchoESF.Convert(dmf, DMFGlobalInstruments.GetActiveInstruments(_project.Songs, _project.SFXs));
 
 			try
 			{
@@ -266,7 +304,7 @@ namespace DefleMaskConvert
 			if (exportBinaryDialog.ShowDialog() != DialogResult.OK) return;
 
 			Cursor.Current = Cursors.WaitCursor;
-			EchoESF data = DMF2EchoESF.Convert(dmf, DMFGlobalInstruments.GetActiveInstruments(_project.Songs));
+			EchoESF data = DMF2EchoESF.Convert(dmf, DMFGlobalInstruments.GetActiveInstruments(_project.Songs, _project.SFXs));
 
 			try
 			{
@@ -292,7 +330,7 @@ namespace DefleMaskConvert
 
 			Cursor.Current = Cursors.WaitCursor;
 			var fails = new List<string>();
-			var activeInstruments = DMFGlobalInstruments.GetActiveInstruments(_project.Songs);
+			var activeInstruments = DMFGlobalInstruments.GetActiveInstruments(_project.Songs, _project.SFXs);
 
 			foreach(var song in _project.Songs)
 			{
@@ -331,7 +369,7 @@ namespace DefleMaskConvert
 
 			Cursor.Current = Cursors.WaitCursor;
 			var fails = new List<string>();
-			var activeInstruments = DMFGlobalInstruments.GetActiveInstruments(_project.Songs);
+			var activeInstruments = DMFGlobalInstruments.GetActiveInstruments(_project.Songs, _project.SFXs);
 
 			foreach (var song in _project.Songs)
 			{
@@ -371,7 +409,7 @@ namespace DefleMaskConvert
 			Cursor.Current = Cursors.WaitCursor;
 			var fails = new List<string>();
 
-			List<Instrument> instruments = DMF2EchoInstruments.Convert(DMFGlobalInstruments.GetActiveInstruments(_project.Songs));
+			List<Instrument> instruments = DMF2EchoInstruments.Convert(DMFGlobalInstruments.GetActiveInstruments(_project.Songs, _project.SFXs));
 			int index = -1;
 			foreach(var data in instruments)
 			{
@@ -410,6 +448,51 @@ namespace DefleMaskConvert
 			}
 
 			Cursor.Current = Cursors.Default;
+		}
+
+		static private readonly List<EchoESF> _sfxs = new List<EchoESF>();
+		private void allEchoSFXsASMToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			exportAssemblyDialog.FileName = "";
+			exportAssemblyDialog.Title = "Export SFXs";
+			if (exportAssemblyDialog.ShowDialog() != DialogResult.OK) return;
+
+			Cursor.Current = Cursors.WaitCursor;
+			_sfxs.Clear();
+			var fails = new List<string>();
+			var activeInstruments = DMFGlobalInstruments.GetActiveInstruments(_project.Songs, _project.SFXs);
+
+			foreach (var container in _project.SFXs)
+			{
+				if (!container.Export) continue;
+
+				string nameFormat = container.FXs.Count > 1? SFX_NAME_MULTI: SFX_NAME_SIMPLE;
+				foreach (var fx in container.FXs)
+				{
+					if (!fx.Export) continue;
+
+					EchoESF data = DMF2EchoESF.Convert(fx, activeInstruments);
+					data.ExportName = string.Format(nameFormat, container.ExportName, fx.ExportName);
+					_sfxs.Add(data);
+				}
+			}
+
+			try
+			{
+				EchoESM2ASM.SaveFile(exportAssemblyDialog.FileName, _sfxs);
+				Cursor.Current = Cursors.Default;
+			}
+			catch (Exception)
+			{
+				Cursor.Current = Cursors.Default;
+				_message.Clear();
+				_message.AppendLine("Unable to export file:");
+
+				_message.Append(" - ");
+				_message.AppendLine(exportAssemblyDialog.FileName);
+
+				ShowErrorMessage(_message.ToString());
+			}
 		}
 		#endregion
 
@@ -517,6 +600,84 @@ namespace DefleMaskConvert
 		}
 		#endregion
 
+		#region SFXs
+		private void RefreshSFXsView()
+		{
+			sfxsTreeView.SelectedNode = null;
+			sfxsTreeView.Nodes.Clear();
+			foreach (var data in _project.SFXs)
+			{
+				TreeNode container = new TreeNode(data.ExportName);
+				container.Tag = data;
+				container.Checked = data.Export;
+
+				foreach(var sfx in data.FXs)
+				{
+					TreeNode node = new TreeNode(sfx.ExportName);
+					node.Tag = sfx;
+					node.Checked = sfx.Export;
+					container.Nodes.Add(node);
+				}
+
+				sfxsTreeView.Nodes.Add(container);
+			}
+		}
+
+		private void sfxsTreeView_AfterLabelEdit(object sender, NodeLabelEditEventArgs e)
+		{
+			if (e.Label == null) return;
+
+			var invalidChars = Path.GetInvalidFileNameChars();
+			if (e.Label.IndexOfAny(invalidChars) >= 0)
+			{
+				e.CancelEdit = true;
+				ShowErrorMessage("The name contains invalid chars.");
+			}
+
+			SFXData containerData = e.Node.Tag as SFXData;
+			if (containerData == null)
+			{
+				DMFData sfx = (DMFData)e.Node.Tag;
+				containerData = _project.FindContainer(sfx);
+
+				if (containerData.CheckDuplicateExportName(e.Label))
+				{
+					e.CancelEdit = true;
+					ShowErrorMessage(string.Format("The name '{0}' already exist.", e.Label));
+				}
+				else
+					sfx.ExportName = e.Label;
+			}
+			else if (_project.CheckDuplicateSFXExportName(e.Label))
+			{
+				e.CancelEdit = true;
+				ShowErrorMessage(string.Format("The name '{0}' already exist.", e.Label));
+			}
+			else
+				containerData.ExportName = e.Label;
+		}
+
+		private void sfxsTreeView_KeyUp(object sender, KeyEventArgs e)
+		{
+			if (sfxsTreeView.SelectedNode == null) return;
+
+			switch (e.KeyCode)
+			{
+				case Keys.Delete:
+					var data = sfxsTreeView.SelectedNode.Tag as SFXData;
+					if (data == null) return;
+
+					_project.SFXs.Remove(data);
+
+					RefreshSFXsView();
+					unsupportedEffects.Visible = false;
+					exportParams.Enabled = false;
+					RefreshExportEchoButtons();
+					break;
+			}
+		}
+		#endregion
+
 		#region Details View
 		private void RefreshDetailsView()
 		{
@@ -538,7 +699,7 @@ namespace DefleMaskConvert
 				e.CancelEdit = true;
 				ShowErrorMessage("The name contains invalid chars.");
 			}
-			else if (_project.CheckDuplicateExportName(e.Label))
+			else if (_project.CheckDuplicateSongExportName(e.Label))
 			{
 				e.CancelEdit = true;
 				ShowErrorMessage(string.Format("The name '{0}' already exist.", e.Label));
@@ -831,101 +992,42 @@ namespace DefleMaskConvert
 			exportToolStripMenuItem.Enabled = true;
 			projectPanel.Visible = true;
 
-			if (_project.SaveSongs.Count > 0)
+			if (_project.SaveSongs.Count > 0 || _project.SFXs.Count > 0)
 			{
 				string rootPath = _project.GetProjectFolderPath();
 				var fails = new Dictionary<DMFImporter.Result, List<string>>();
-				List<string> errors;
 
 				foreach (var song in _project.SaveSongs)
 				{
-					string path = song.Path;
-					string root = Path.GetPathRoot(path);
-					if (string.IsNullOrWhiteSpace(root))
-						path = Path.Combine(rootPath, path);
-
-					DMFImporter importer;
-					try
+					var data = LoadDMF(song, rootPath, fails);
+					if (data != null)
 					{
-						importer = new DMFImporter(path);
+						SetSongSaveData(data, song);
+						_project.Songs.Add(data);
 					}
-					catch (Exception)
+				}
+
+				foreach (var sfx in _project.SFXs)
+				{
+					var data = LoadDMF(sfx, rootPath, fails);
+					if (data != null)
 					{
-						if (!fails.TryGetValue(DMFImporter.Result.UnableToOpenFile, out errors))
+						sfx.Source = data;
+						int i = 0;
+						for (; i < data.PatternPages; i++)
 						{
-							errors = new List<string>();
-							fails.Add(DMFImporter.Result.UnableToOpenFile, errors);
+							var fx = new DMFData(data, i);
+							sfx.FXs.Add(fx);
+
+							if (i < sfx.SaveSFX.Count)
+							{
+								var savedData = sfx.SaveSFX[i];
+								fx.Export = savedData.Export;
+								fx.ExportName = savedData.ExportName;
+								SetSongSaveData(fx, savedData);
+							}
 						}
-						errors.Add(path);
-						continue;
-					}
-
-					DMFData data;
-					var result = importer.ParseData(out data);
-					data.FilePath = path;
-
-					string fileName = Path.GetFileName(openDefleMaskDialog.FileName);
-					switch (result)
-					{
-						case DMFImporter.Result.UnknowFileFormat:
-							if (!fails.TryGetValue(DMFImporter.Result.UnknowFileFormat, out errors))
-							{
-								errors = new List<string>();
-								fails.Add(DMFImporter.Result.UnknowFileFormat, errors);
-							}
-							errors.Add(path);
-							break;
-
-						case DMFImporter.Result.UnsupportedFileVersion:
-							if (!fails.TryGetValue(DMFImporter.Result.UnsupportedFileVersion, out errors))
-							{
-								errors = new List<string>();
-								fails.Add(DMFImporter.Result.UnsupportedFileVersion, errors);
-							}
-							errors.Add(path);
-							break;
-
-						case DMFImporter.Result.UnsupportedSystem:
-							if (!fails.TryGetValue(DMFImporter.Result.UnsupportedSystem, out errors))
-							{
-								errors = new List<string>();
-								fails.Add(DMFImporter.Result.UnsupportedSystem, errors);
-							}
-							errors.Add(path);
-							break;
-
-						case DMFImporter.Result.UnknowInstrumentType:
-							if (!fails.TryGetValue(DMFImporter.Result.UnknowInstrumentType, out errors))
-							{
-								errors = new List<string>();
-								fails.Add(DMFImporter.Result.UnknowInstrumentType, errors);
-							}
-							errors.Add(path);
-							break;
-
-						case DMFImporter.Result.UnsupportedSampleBits:
-							if (!fails.TryGetValue(DMFImporter.Result.UnsupportedSampleBits, out errors))
-							{
-								errors = new List<string>();
-								fails.Add(DMFImporter.Result.UnsupportedSampleBits, errors);
-							}
-							errors.Add(path);
-							break;
-
-						case DMFImporter.Result.OK:
-							data.ExportName = song.ExportName;
-							data.Export = song.Export;
-							data.LockChannels = song.LockChannels;
-							data.LoopWholeTrack = song.LoopWholeTrack;
-							data.PCMRate = song.PCMRate;
-
-							for (int i = 0; i < song.ExportChannels.Count && i < data.Channels.Count; i++)
-							{
-								data.Channels[i].Export = song.ExportChannels[i];
-							}
-
-							_project.Songs.Add(data);
-							break;
+						FilterSFXsNames(sfx);
 					}
 				}
 
@@ -948,8 +1050,122 @@ namespace DefleMaskConvert
 			}
 
 			RefreshDetailsView();
+			RefreshSFXsView();
 			unsupportedEffects.Visible = false;
 			RefreshExportEchoButtons();
+		}
+
+		static private readonly List<string> _usedNames = new List<string>();
+		private void FilterSFXsNames(SFXData fxs)
+		{
+			_usedNames.Clear();
+			foreach(var sfx in fxs.FXs)
+			{
+				string name = sfx.ExportName;
+				if (string.IsNullOrWhiteSpace(name))
+					name = "Sound";
+
+				name = GetNextDefaultName(_usedNames, name);
+				sfx.ExportName = name;
+				_usedNames.Add(name);
+			}
+		}
+
+		private void SetSongSaveData(DMFData data, SongData savedData)
+		{
+			data.LockChannels = savedData.LockChannels;
+			data.LoopWholeTrack = savedData.LoopWholeTrack;
+			data.PCMRate = savedData.PCMRate;
+
+			for (int i = 0; i < savedData.ExportChannels.Count && i < data.Channels.Count; i++)
+			{
+				data.Channels[i].Export = savedData.ExportChannels[i];
+			}
+		}
+
+		private DMFData LoadDMF(AudioData audio, string rootPath, Dictionary<DMFImporter.Result, List<string>> fails)
+		{
+			List<string> errors;
+			string path = audio.Path;
+			string root = Path.GetPathRoot(path);
+			if (string.IsNullOrWhiteSpace(root))
+				path = Path.Combine(rootPath, path);
+
+			DMFImporter importer;
+			try
+			{
+				importer = new DMFImporter(path);
+			}
+			catch (Exception)
+			{
+				if (!fails.TryGetValue(DMFImporter.Result.UnableToOpenFile, out errors))
+				{
+					errors = new List<string>();
+					fails.Add(DMFImporter.Result.UnableToOpenFile, errors);
+				}
+				errors.Add(path);
+				return null;
+			}
+
+			DMFData data;
+			var result = importer.ParseData(out data);
+			data.FilePath = path;
+
+			string fileName = Path.GetFileName(openDefleMaskDialog.FileName);
+			switch (result)
+			{
+				case DMFImporter.Result.UnknowFileFormat:
+					if (!fails.TryGetValue(DMFImporter.Result.UnknowFileFormat, out errors))
+					{
+						errors = new List<string>();
+						fails.Add(DMFImporter.Result.UnknowFileFormat, errors);
+					}
+					errors.Add(path);
+					break;
+
+				case DMFImporter.Result.UnsupportedFileVersion:
+					if (!fails.TryGetValue(DMFImporter.Result.UnsupportedFileVersion, out errors))
+					{
+						errors = new List<string>();
+						fails.Add(DMFImporter.Result.UnsupportedFileVersion, errors);
+					}
+					errors.Add(path);
+					break;
+
+				case DMFImporter.Result.UnsupportedSystem:
+					if (!fails.TryGetValue(DMFImporter.Result.UnsupportedSystem, out errors))
+					{
+						errors = new List<string>();
+						fails.Add(DMFImporter.Result.UnsupportedSystem, errors);
+					}
+					errors.Add(path);
+					break;
+
+				case DMFImporter.Result.UnknowInstrumentType:
+					if (!fails.TryGetValue(DMFImporter.Result.UnknowInstrumentType, out errors))
+					{
+						errors = new List<string>();
+						fails.Add(DMFImporter.Result.UnknowInstrumentType, errors);
+					}
+					errors.Add(path);
+					break;
+
+				case DMFImporter.Result.UnsupportedSampleBits:
+					if (!fails.TryGetValue(DMFImporter.Result.UnsupportedSampleBits, out errors))
+					{
+						errors = new List<string>();
+						fails.Add(DMFImporter.Result.UnsupportedSampleBits, errors);
+					}
+					errors.Add(path);
+					break;
+
+				case DMFImporter.Result.OK:
+					data.ExportName = audio.ExportName;
+					data.Export = audio.Export;
+					return data;
+			}
+
+			return null;
 		}
 
 		private void RefreshTitle()
@@ -1031,6 +1247,15 @@ namespace DefleMaskConvert
 		private const string DEFAULT_NAME = "{0}{1}";
 		static public string GetNextDefaultName(IEnumerable<string> names, string prefix)
 		{
+			bool nameUsed = false;
+			foreach (var item in names)
+			{
+				nameUsed = item == prefix;
+				if (nameUsed) break;
+			}
+
+			if (!nameUsed) return prefix;
+
 			List<int> indexes = new List<int>();
 			foreach (var item in names)
 			{

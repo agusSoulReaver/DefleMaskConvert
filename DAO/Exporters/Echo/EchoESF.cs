@@ -9,6 +9,8 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 
 	public class EchoESF
 	{
+		public string ExportName;
+
 		public readonly List<IEchoEvent> Header = new List<IEchoEvent>();
 		public readonly List<EchoPatternPage> Pages = new List<EchoPatternPage>();
 		public readonly List<IEchoEvent> Footer = new List<IEchoEvent>();

@@ -37,11 +37,22 @@
 			this.importToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.exportToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.echoInstrumentsASMToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.allEchoInstrumentsBinaryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.allEchoStreamFormatASMToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.allEchoSongsBinaryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.allEchoSFXsASMToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
 			this.echoStreamFormatASMToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.echoStreamFormatESFToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.openDefleMaskDialog = new System.Windows.Forms.OpenFileDialog();
 			this.projectPanel = new System.Windows.Forms.GroupBox();
+			this.audioSection = new System.Windows.Forms.TabControl();
+			this.songsMode = new System.Windows.Forms.TabPage();
+			this.songsTreeView = new System.Windows.Forms.TreeView();
+			this.sfxsMode = new System.Windows.Forms.TabPage();
+			this.sfxsTreeView = new System.Windows.Forms.TreeView();
 			this.unsupportedEffects = new System.Windows.Forms.GroupBox();
 			this.unsupportedTreeView = new System.Windows.Forms.TreeView();
 			this.exportParams = new System.Windows.Forms.GroupBox();
@@ -71,19 +82,16 @@
 			this.btnExportChannelFM3 = new System.Windows.Forms.CheckBox();
 			this.btnExportChannelFM2 = new System.Windows.Forms.CheckBox();
 			this.btnExportChannelFM1 = new System.Windows.Forms.CheckBox();
-			this.songsTreeView = new System.Windows.Forms.TreeView();
 			this.exportAssemblyDialog = new System.Windows.Forms.SaveFileDialog();
 			this.saveProjectDialog = new System.Windows.Forms.SaveFileDialog();
 			this.openProjectDialog = new System.Windows.Forms.OpenFileDialog();
 			this.exportFolderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog();
-			this.allEchoInstrumentsBinaryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this.echoStreamFormatESFToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.exportBinaryDialog = new System.Windows.Forms.SaveFileDialog();
-			this.allEchoSongsBinaryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.mainMenuStrip.SuspendLayout();
 			this.projectPanel.SuspendLayout();
+			this.audioSection.SuspendLayout();
+			this.songsMode.SuspendLayout();
+			this.sfxsMode.SuspendLayout();
 			this.unsupportedEffects.SuspendLayout();
 			this.exportParams.SuspendLayout();
 			this.groupBox1.SuspendLayout();
@@ -153,6 +161,7 @@
             this.allEchoInstrumentsBinaryToolStripMenuItem,
             this.allEchoStreamFormatASMToolStripMenuItem,
             this.allEchoSongsBinaryToolStripMenuItem,
+            this.allEchoSFXsASMToolStripMenuItem,
             this.toolStripSeparator2,
             this.echoStreamFormatASMToolStripMenuItem,
             this.echoStreamFormatESFToolStripMenuItem});
@@ -163,9 +172,16 @@
 			// echoInstrumentsASMToolStripMenuItem
 			// 
 			this.echoInstrumentsASMToolStripMenuItem.Name = "echoInstrumentsASMToolStripMenuItem";
-			this.echoInstrumentsASMToolStripMenuItem.Size = new System.Drawing.Size(234, 22);
+			this.echoInstrumentsASMToolStripMenuItem.Size = new System.Drawing.Size(227, 22);
 			this.echoInstrumentsASMToolStripMenuItem.Text = "All Echo Instruments (ASM)";
 			this.echoInstrumentsASMToolStripMenuItem.Click += new System.EventHandler(this.echoInstrumentsASMToolStripMenuItem_Click);
+			// 
+			// allEchoInstrumentsBinaryToolStripMenuItem
+			// 
+			this.allEchoInstrumentsBinaryToolStripMenuItem.Name = "allEchoInstrumentsBinaryToolStripMenuItem";
+			this.allEchoInstrumentsBinaryToolStripMenuItem.Size = new System.Drawing.Size(227, 22);
+			this.allEchoInstrumentsBinaryToolStripMenuItem.Text = "All Echo Instruments (Binary)";
+			this.allEchoInstrumentsBinaryToolStripMenuItem.Click += new System.EventHandler(this.allEchoInstrumentsBinaryToolStripMenuItem_Click);
 			// 
 			// allEchoStreamFormatASMToolStripMenuItem
 			// 
@@ -174,10 +190,24 @@
 			this.allEchoStreamFormatASMToolStripMenuItem.Text = "All Echo Songs (ASM)";
 			this.allEchoStreamFormatASMToolStripMenuItem.Click += new System.EventHandler(this.allEchoStreamFormatASMToolStripMenuItem_Click);
 			// 
+			// allEchoSongsBinaryToolStripMenuItem
+			// 
+			this.allEchoSongsBinaryToolStripMenuItem.Name = "allEchoSongsBinaryToolStripMenuItem";
+			this.allEchoSongsBinaryToolStripMenuItem.Size = new System.Drawing.Size(227, 22);
+			this.allEchoSongsBinaryToolStripMenuItem.Text = "All Echo Songs (Binary)";
+			this.allEchoSongsBinaryToolStripMenuItem.Click += new System.EventHandler(this.allEchoSongsBinaryToolStripMenuItem_Click);
+			// 
+			// allEchoSFXsASMToolStripMenuItem
+			// 
+			this.allEchoSFXsASMToolStripMenuItem.Name = "allEchoSFXsASMToolStripMenuItem";
+			this.allEchoSFXsASMToolStripMenuItem.Size = new System.Drawing.Size(227, 22);
+			this.allEchoSFXsASMToolStripMenuItem.Text = "All Echo SFXs (ASM)";
+			this.allEchoSFXsASMToolStripMenuItem.Click += new System.EventHandler(this.allEchoSFXsASMToolStripMenuItem_Click);
+			// 
 			// toolStripSeparator2
 			// 
 			this.toolStripSeparator2.Name = "toolStripSeparator2";
-			this.toolStripSeparator2.Size = new System.Drawing.Size(231, 6);
+			this.toolStripSeparator2.Size = new System.Drawing.Size(224, 6);
 			// 
 			// echoStreamFormatASMToolStripMenuItem
 			// 
@@ -185,6 +215,28 @@
 			this.echoStreamFormatASMToolStripMenuItem.Size = new System.Drawing.Size(227, 22);
 			this.echoStreamFormatASMToolStripMenuItem.Text = "Echo Song (ASM)";
 			this.echoStreamFormatASMToolStripMenuItem.Click += new System.EventHandler(this.echoStreamFormatASMToolStripMenuItem_Click);
+			// 
+			// echoStreamFormatESFToolStripMenuItem
+			// 
+			this.echoStreamFormatESFToolStripMenuItem.Name = "echoStreamFormatESFToolStripMenuItem";
+			this.echoStreamFormatESFToolStripMenuItem.Size = new System.Drawing.Size(227, 22);
+			this.echoStreamFormatESFToolStripMenuItem.Text = "Echo Song (ESF)";
+			this.echoStreamFormatESFToolStripMenuItem.Click += new System.EventHandler(this.echoStreamFormatESFToolStripMenuItem_Click);
+			// 
+			// helpToolStripMenuItem
+			// 
+			this.helpToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.aboutToolStripMenuItem});
+			this.helpToolStripMenuItem.Name = "helpToolStripMenuItem";
+			this.helpToolStripMenuItem.Size = new System.Drawing.Size(44, 20);
+			this.helpToolStripMenuItem.Text = "Help";
+			// 
+			// aboutToolStripMenuItem
+			// 
+			this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
+			this.aboutToolStripMenuItem.Size = new System.Drawing.Size(107, 22);
+			this.aboutToolStripMenuItem.Text = "About";
+			this.aboutToolStripMenuItem.Click += new System.EventHandler(this.aboutToolStripMenuItem_Click);
 			// 
 			// openDefleMaskDialog
 			// 
@@ -196,15 +248,89 @@
 			this.projectPanel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+			this.projectPanel.Controls.Add(this.audioSection);
 			this.projectPanel.Controls.Add(this.unsupportedEffects);
 			this.projectPanel.Controls.Add(this.exportParams);
-			this.projectPanel.Controls.Add(this.songsTreeView);
 			this.projectPanel.Location = new System.Drawing.Point(12, 27);
 			this.projectPanel.Name = "projectPanel";
 			this.projectPanel.Size = new System.Drawing.Size(760, 562);
 			this.projectPanel.TabIndex = 19;
 			this.projectPanel.TabStop = false;
 			this.projectPanel.Text = "DMF";
+			// 
+			// audioSection
+			// 
+			this.audioSection.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+			this.audioSection.Appearance = System.Windows.Forms.TabAppearance.FlatButtons;
+			this.audioSection.Controls.Add(this.songsMode);
+			this.audioSection.Controls.Add(this.sfxsMode);
+			this.audioSection.Location = new System.Drawing.Point(6, 19);
+			this.audioSection.Name = "audioSection";
+			this.audioSection.SelectedIndex = 0;
+			this.audioSection.Size = new System.Drawing.Size(497, 537);
+			this.audioSection.TabIndex = 25;
+			// 
+			// songsMode
+			// 
+			this.songsMode.Controls.Add(this.songsTreeView);
+			this.songsMode.Location = new System.Drawing.Point(4, 25);
+			this.songsMode.Name = "songsMode";
+			this.songsMode.Padding = new System.Windows.Forms.Padding(3);
+			this.songsMode.Size = new System.Drawing.Size(489, 508);
+			this.songsMode.TabIndex = 0;
+			this.songsMode.Text = "Songs";
+			this.songsMode.UseVisualStyleBackColor = true;
+			// 
+			// songsTreeView
+			// 
+			this.songsTreeView.AllowDrop = true;
+			this.songsTreeView.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+			this.songsTreeView.CheckBoxes = true;
+			this.songsTreeView.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F);
+			this.songsTreeView.HideSelection = false;
+			this.songsTreeView.LabelEdit = true;
+			this.songsTreeView.Location = new System.Drawing.Point(6, 6);
+			this.songsTreeView.Name = "songsTreeView";
+			this.songsTreeView.Size = new System.Drawing.Size(477, 496);
+			this.songsTreeView.TabIndex = 22;
+			this.songsTreeView.AfterLabelEdit += new System.Windows.Forms.NodeLabelEditEventHandler(this.songsTreeView_AfterLabelEdit);
+			this.songsTreeView.AfterCheck += new System.Windows.Forms.TreeViewEventHandler(this.songsTreeView_AfterCheck);
+			this.songsTreeView.ItemDrag += new System.Windows.Forms.ItemDragEventHandler(this.songsTreeView_ItemDrag);
+			this.songsTreeView.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.songsTreeView_AfterSelect);
+			this.songsTreeView.DragDrop += new System.Windows.Forms.DragEventHandler(this.songsTreeView_DragDrop);
+			this.songsTreeView.DragEnter += new System.Windows.Forms.DragEventHandler(this.songsTreeView_DragEnter);
+			this.songsTreeView.KeyUp += new System.Windows.Forms.KeyEventHandler(this.songsTreeView_KeyUp);
+			// 
+			// sfxsMode
+			// 
+			this.sfxsMode.Controls.Add(this.sfxsTreeView);
+			this.sfxsMode.Location = new System.Drawing.Point(4, 25);
+			this.sfxsMode.Name = "sfxsMode";
+			this.sfxsMode.Padding = new System.Windows.Forms.Padding(3);
+			this.sfxsMode.Size = new System.Drawing.Size(489, 508);
+			this.sfxsMode.TabIndex = 1;
+			this.sfxsMode.Text = "SFXs";
+			this.sfxsMode.UseVisualStyleBackColor = true;
+			// 
+			// sfxsTreeView
+			// 
+			this.sfxsTreeView.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+			this.sfxsTreeView.CheckBoxes = true;
+			this.sfxsTreeView.HideSelection = false;
+			this.sfxsTreeView.LabelEdit = true;
+			this.sfxsTreeView.Location = new System.Drawing.Point(6, 6);
+			this.sfxsTreeView.Name = "sfxsTreeView";
+			this.sfxsTreeView.Size = new System.Drawing.Size(477, 496);
+			this.sfxsTreeView.TabIndex = 0;
+			this.sfxsTreeView.AfterLabelEdit += new System.Windows.Forms.NodeLabelEditEventHandler(this.sfxsTreeView_AfterLabelEdit);
+			this.sfxsTreeView.AfterCheck += new System.Windows.Forms.TreeViewEventHandler(this.sfxsTreeView_AfterCheck);
+			this.sfxsTreeView.KeyUp += new System.Windows.Forms.KeyEventHandler(this.sfxsTreeView_KeyUp);
 			// 
 			// unsupportedEffects
 			// 
@@ -561,28 +687,6 @@
 			this.btnExportChannelFM1.UseVisualStyleBackColor = true;
 			this.btnExportChannelFM1.CheckedChanged += new System.EventHandler(this.btnExportChannelCheckedChanged);
 			// 
-			// songsTreeView
-			// 
-			this.songsTreeView.AllowDrop = true;
-			this.songsTreeView.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-			this.songsTreeView.CheckBoxes = true;
-			this.songsTreeView.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F);
-			this.songsTreeView.HideSelection = false;
-			this.songsTreeView.LabelEdit = true;
-			this.songsTreeView.Location = new System.Drawing.Point(6, 19);
-			this.songsTreeView.Name = "songsTreeView";
-			this.songsTreeView.Size = new System.Drawing.Size(497, 537);
-			this.songsTreeView.TabIndex = 22;
-			this.songsTreeView.AfterLabelEdit += new System.Windows.Forms.NodeLabelEditEventHandler(this.songsTreeView_AfterLabelEdit);
-			this.songsTreeView.AfterCheck += new System.Windows.Forms.TreeViewEventHandler(this.songsTreeView_AfterCheck);
-			this.songsTreeView.ItemDrag += new System.Windows.Forms.ItemDragEventHandler(this.songsTreeView_ItemDrag);
-			this.songsTreeView.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.songsTreeView_AfterSelect);
-			this.songsTreeView.DragDrop += new System.Windows.Forms.DragEventHandler(this.songsTreeView_DragDrop);
-			this.songsTreeView.DragEnter += new System.Windows.Forms.DragEventHandler(this.songsTreeView_DragEnter);
-			this.songsTreeView.KeyUp += new System.Windows.Forms.KeyEventHandler(this.songsTreeView_KeyUp);
-			// 
 			// exportAssemblyDialog
 			// 
 			this.exportAssemblyDialog.Filter = "Assembly|*.asm";
@@ -601,46 +705,10 @@
 			// 
 			this.exportFolderBrowserDialog.RootFolder = System.Environment.SpecialFolder.MyComputer;
 			// 
-			// allEchoInstrumentsBinaryToolStripMenuItem
-			// 
-			this.allEchoInstrumentsBinaryToolStripMenuItem.Name = "allEchoInstrumentsBinaryToolStripMenuItem";
-			this.allEchoInstrumentsBinaryToolStripMenuItem.Size = new System.Drawing.Size(234, 22);
-			this.allEchoInstrumentsBinaryToolStripMenuItem.Text = "All Echo Instruments (Binary)";
-			this.allEchoInstrumentsBinaryToolStripMenuItem.Click += new System.EventHandler(this.allEchoInstrumentsBinaryToolStripMenuItem_Click);
-			// 
-			// echoStreamFormatESFToolStripMenuItem
-			// 
-			this.echoStreamFormatESFToolStripMenuItem.Name = "echoStreamFormatESFToolStripMenuItem";
-			this.echoStreamFormatESFToolStripMenuItem.Size = new System.Drawing.Size(227, 22);
-			this.echoStreamFormatESFToolStripMenuItem.Text = "Echo Song (ESF)";
-			this.echoStreamFormatESFToolStripMenuItem.Click += new System.EventHandler(this.echoStreamFormatESFToolStripMenuItem_Click);
-			// 
 			// exportBinaryDialog
 			// 
 			this.exportBinaryDialog.Filter = "Echo Stream Format|*.esf";
 			this.exportBinaryDialog.Title = "Export Echo Stream Format";
-			// 
-			// allEchoSongsBinaryToolStripMenuItem
-			// 
-			this.allEchoSongsBinaryToolStripMenuItem.Name = "allEchoSongsBinaryToolStripMenuItem";
-			this.allEchoSongsBinaryToolStripMenuItem.Size = new System.Drawing.Size(227, 22);
-			this.allEchoSongsBinaryToolStripMenuItem.Text = "All Echo Songs (Binary)";
-			this.allEchoSongsBinaryToolStripMenuItem.Click += new System.EventHandler(this.allEchoSongsBinaryToolStripMenuItem_Click);
-			// 
-			// helpToolStripMenuItem
-			// 
-			this.helpToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.aboutToolStripMenuItem});
-			this.helpToolStripMenuItem.Name = "helpToolStripMenuItem";
-			this.helpToolStripMenuItem.Size = new System.Drawing.Size(44, 20);
-			this.helpToolStripMenuItem.Text = "Help";
-			// 
-			// aboutToolStripMenuItem
-			// 
-			this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
-			this.aboutToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-			this.aboutToolStripMenuItem.Text = "About";
-			this.aboutToolStripMenuItem.Click += new System.EventHandler(this.aboutToolStripMenuItem_Click);
 			// 
 			// EntryPoint
 			// 
@@ -656,6 +724,9 @@
 			this.mainMenuStrip.ResumeLayout(false);
 			this.mainMenuStrip.PerformLayout();
 			this.projectPanel.ResumeLayout(false);
+			this.audioSection.ResumeLayout(false);
+			this.songsMode.ResumeLayout(false);
+			this.sfxsMode.ResumeLayout(false);
 			this.unsupportedEffects.ResumeLayout(false);
 			this.exportParams.ResumeLayout(false);
 			this.exportParams.PerformLayout();
@@ -722,6 +793,11 @@
 		private System.Windows.Forms.ToolStripMenuItem allEchoSongsBinaryToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem helpToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem;
+		private System.Windows.Forms.TabControl audioSection;
+		private System.Windows.Forms.TabPage songsMode;
+		private System.Windows.Forms.TabPage sfxsMode;
+		private System.Windows.Forms.TreeView sfxsTreeView;
+		private System.Windows.Forms.ToolStripMenuItem allEchoSFXsASMToolStripMenuItem;
 	}
 }
 

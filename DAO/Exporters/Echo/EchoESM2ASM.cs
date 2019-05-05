@@ -12,15 +12,42 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 	{
 		private Moto68KWriter _writer;
 
-		private EchoESM2ASM(TextWriter stream, EchoESF data, string songName, string author)
+		private EchoESM2ASM(TextWriter stream)
 		{
 			_writer = new Moto68KWriter(stream);
+		}
 
+		private EchoESM2ASM(TextWriter stream, EchoESF data, string songName, string author)
+			:this(stream)
+		{
 			_writer.Comment(string.Format("Name: {0}", songName));
 			_writer.Comment(string.Format("Author: {0}", author));
 			_writer.Comment(string.Format("Size: {0} bytes", CalculateSize(data)));
 			_writer.NewLine();
 
+			Write(data);
+		}
+
+		private EchoESM2ASM(TextWriter stream, List<EchoESF> list)
+			: this(stream)
+		{
+			_writer.Comment(string.Format("Size: {0} bytes", CalculateSize(list)));
+			_writer.Comment("Labels:");
+			foreach(var data in list)
+			{
+				_writer.Comment(data.ExportName, Moto68KWriter.Separations.Tab);
+			}
+
+			foreach (var data in list)
+			{
+				_writer.NewLine();
+				_writer.Label(data.ExportName);
+				Write(data);
+			}
+		}
+
+		private void Write(EchoESF data)
+		{
 			if (data.Header.Count > 0)
 			{
 				_writer.Comment("Header");
@@ -77,6 +104,16 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 				_writer.NewLine();
 		}
 
+		private int CalculateSize(List<EchoESF> list)
+		{
+			int size = 0;
+			foreach (var data in list)
+			{
+				size += CalculateSize(data);
+			}
+			return size;
+		}
+
 		private int CalculateSize(EchoESF data)
 		{
 			int size = CalculateSize(data.Header);
@@ -112,6 +149,20 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 			{
 				TextWriter stream = new StreamWriter(file, Encoding.ASCII);
 				new EchoESM2ASM(stream, data, songName, author);
+
+				stream.Flush();
+				stream.Close();
+			}
+		}
+
+		static public void SaveFile(string path, List<EchoESF> data)
+		{
+			File.WriteAllLines(path, new string[] { string.Empty });
+
+			using (FileStream file = File.OpenWrite(path))
+			{
+				TextWriter stream = new StreamWriter(file, Encoding.ASCII);
+				new EchoESM2ASM(stream, data);
 
 				stream.Flush();
 				stream.Close();

@@ -41,11 +41,26 @@ namespace DefleMaskConvert.DAO.Importers.DMF
 
 		private const int DAC_CHANNEL = 5;
 		static private readonly List<InstrumentData> _activeInstruments = new List<InstrumentData>();
-		static public List<InstrumentData> GetActiveInstruments(List<DMFData> songs)
+		static public List<InstrumentData> GetActiveInstruments(List<DMFData> songs, List<SFXData> sfxs)
 		{
 			_activeInstruments.Clear();
 
-			foreach (var dmf in songs)
+			ExtractInstruments(songs);
+			foreach(var fxs in sfxs)
+			{
+				if (fxs.Export)
+					ExtractInstruments(fxs.FXs);
+			}
+
+			_activeInstruments.Add(PSGInstrumentData.DEFAULT_PSG_INSTRUMENT);
+			_activeInstruments.Sort(SortInstruments);
+
+			return _activeInstruments;
+		}
+
+		static private void ExtractInstruments(List<DMFData> data)
+		{
+			foreach (var dmf in data)
 			{
 				if (!dmf.Export) continue;
 
@@ -68,7 +83,7 @@ namespace DefleMaskConvert.DAO.Importers.DMF
 								}
 							}
 
-							if(channelIndex == DAC_CHANNEL && DACEnabled)
+							if (channelIndex == DAC_CHANNEL && DACEnabled)
 							{
 								byte note = (byte)noteData.Note;
 								//Notes were 1-based, now 0-based from here
@@ -88,12 +103,6 @@ namespace DefleMaskConvert.DAO.Importers.DMF
 					}
 				}
 			}
-
-			_activeInstruments.Add(PSGInstrumentData.DEFAULT_PSG_INSTRUMENT);
-
-			_activeInstruments.Sort(SortInstruments);
-
-			return _activeInstruments;
 		}
 
 		static private int SortInstruments(InstrumentData a, InstrumentData b)

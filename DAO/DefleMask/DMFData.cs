@@ -55,6 +55,73 @@ namespace DefleMaskConvert.DAO.DefleMask
 			PCMRate = ESF_PCMRate.NotChange;
 		}
 
+		public DMFData(DMFData other, int pageIndex)
+			: this()
+		{
+			this.FilePath = "";
+			this.LockChannels = true;
+
+			this.HighlightA = other.HighlightA;
+			this.HighlightB = other.HighlightB;
+
+			this.TimeBase = other.TimeBase;
+			this.TickTimeEven = other.TickTimeEven;
+			this.TickTimeOdd = other.TickTimeOdd;
+
+			this.FrameMode = other.FrameMode;
+			this.CustomHz1 = other.CustomHz1;
+			this.CustomHz2 = other.CustomHz2;
+			this.CustomHz3 = other.CustomHz3;
+
+			//this.TotalRowsPerPattern = other.TotalRowsPerPattern;
+			this.PatternPages = 1;
+
+			this.Instruments = other.Instruments;
+			this.WaveTables = other.WaveTables;
+			this.Samples = other.Samples;
+
+			bool findName = true;
+			this.Channels = new List<ChannelData>();
+			for (int i = 0; i < other.Channels.Count; i++)
+			{
+				var otherChannel = other.Channels[i];
+				var channel = new ChannelData();
+				channel.EffectsCount = otherChannel.EffectsCount;
+				this.Channels.Add(channel);
+
+				channel.Pages = new PatternPage[1];
+				channel.Pages[0] = otherChannel.Pages[pageIndex];
+
+				if(findName)
+				{
+					foreach(var note in channel.Pages[0].Notes)
+					{
+						if (note.Instrument >= 0)
+						{
+							var instrument = this.Instruments[note.Instrument];
+							this.ExportName = instrument.Name;
+							findName = false;
+							break;
+						}
+					}
+				}
+			}
+
+			for (int i = 0; i < this.Channels.Count; i++)
+			{
+				var channel = this.Channels[i];
+				for (int noteIndex = channel.Pages[0].Notes.Length; --noteIndex >= 0; )
+				{
+					var note = channel.Pages[0].Notes[noteIndex];
+					if (note.Note == (ushort)Notes.Off)
+					{
+						this.TotalRowsPerPattern = (uint)noteIndex+1;
+						return;
+					}
+				}
+			}
+		}
+
 		public bool IsUsingPSGNoiseFrequency()
 		{
 			for (int patternIndex = 0; patternIndex < PatternPages; patternIndex++)
