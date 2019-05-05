@@ -34,7 +34,7 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 				}
 			}
 
-			EchoPatternPage startLoopPage = ContaineStartLoop(data.Header) ? data.Pages[0] : null;
+			EchoPatternPage startLoopPage = ContaineStartLoop(data.Header) ? data.Pages[0] : GetLoopPage(data);
 			if (startLoopPage == null) loopEvents = null;
 
 			for (int pageIndex = 0; pageIndex < data.Pages.Count; pageIndex++)
@@ -409,6 +409,20 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 				if (events[i] is IEchoChannelEvent)
 					_indexes.Add(i);
 			}
+		}
+
+		static private EchoPatternPage GetLoopPage(EchoESF data)
+		{
+			foreach(var page in data.Pages)
+			{
+				foreach(var row in page.Rows)
+				{
+					if (ContaineStartLoop(row.Events))
+						return page;
+				}
+			}
+
+			return null;
 		}
 
 		static private bool ContaineStartLoop(List<IEchoEvent> events)
