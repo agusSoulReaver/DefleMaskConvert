@@ -73,7 +73,6 @@ namespace DefleMaskConvert.DAO.DefleMask
 			this.CustomHz2 = other.CustomHz2;
 			this.CustomHz3 = other.CustomHz3;
 
-			//this.TotalRowsPerPattern = other.TotalRowsPerPattern;
 			this.PatternPages = 1;
 
 			this.Instruments = other.Instruments;
@@ -107,6 +106,7 @@ namespace DefleMaskConvert.DAO.DefleMask
 				}
 			}
 
+			uint totalRows = 0;
 			for (int i = 0; i < this.Channels.Count; i++)
 			{
 				var channel = this.Channels[i];
@@ -115,11 +115,13 @@ namespace DefleMaskConvert.DAO.DefleMask
 					var note = channel.Pages[0].Notes[noteIndex];
 					if (note.Note == (ushort)Notes.Off)
 					{
-						this.TotalRowsPerPattern = (uint)noteIndex+1;
-						return;
+						totalRows = (uint)noteIndex+1;
+						break;
 					}
 				}
 			}
+
+			this.TotalRowsPerPattern = totalRows > 0? totalRows : other.TotalRowsPerPattern;
 		}
 
 		public bool IsUsingPSGNoiseFrequency()
