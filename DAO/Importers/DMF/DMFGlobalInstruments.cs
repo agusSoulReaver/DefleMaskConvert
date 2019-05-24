@@ -86,12 +86,15 @@ namespace DefleMaskConvert.DAO.Importers.DMF
 							if (channelIndex == DAC_CHANNEL && DACEnabled)
 							{
 								byte note = (byte)noteData.Note;
-								//Notes were 1-based, now 0-based from here
-								if (note == Constants.LAST_NOTE) note = 0;
+								if (note != (byte)Notes.Off)
+								{
+									//Notes were 1-based, now 0-based from here
+									if (note == Constants.LAST_NOTE) note = 0;
 
-								SampleData sample = dmf.Samples[note];
-								if (!_activeInstruments.Contains(sample))
-									_activeInstruments.Add(sample);
+									SampleData sample = dmf.Samples[note];
+									if (!_activeInstruments.Contains(sample))
+										_activeInstruments.Add(sample);
+								}
 							}
 							else if ((byte)noteData.Instrument != 0xFF)
 							{
