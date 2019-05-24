@@ -2,6 +2,8 @@
  * This class it's based in the project dmf2esf (https://github.com/BigEvilCorporation/dmf2esf).
  * */
 
+#define SET_VOLUME_AFTER_INSTRUMENT
+
 using DefleMaskConvert.DAO.DefleMask;
 using DefleMaskConvert.DAO.Importers.DMF;
 using System;
@@ -14,6 +16,7 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 {
 	public class DMF2EchoESF
 	{
+
 		private const double RTD = 180 / Math.PI;
 
 		static private int _waitCounter, _nextRow, NextPattern;
@@ -262,6 +265,7 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 			{
 				channel.Volume = channel.NewVolume;
 				channel.LastVolume = channel.NewVolume;
+
 				if (!channel.MustChangeInstrument)
 				{
 					if (channel.Type == ChannelType.FM || channel.Type == ChannelType.FM6)
@@ -288,11 +292,18 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 						AMS = (fm != null) ? fm.LFO2 : (byte)0;
 					}
 
+#if SET_VOLUME_AFTER_INSTRUMENT
+					if ((channel.Type == ChannelType.FM || channel.Type == ChannelType.FM6))
+						SetVolumeEvent(channel.ESFId, channel.LastVolume, patternRow);
+					else if ((channel.Type == ChannelType.PSG || channel.Type == ChannelType.PSG4))
+						SetVolumeEvent(channel.ESFId, channel.LastVolume, patternRow);
+#else
 					/* Echo resets the volume if the instrument is changed */
 					if ((channel.Type == ChannelType.FM || channel.Type == ChannelType.FM6) && channel.LastVolume < 0x7F)
 						SetVolumeEvent(channel.ESFId, channel.LastVolume, patternRow);
 					else if ((channel.Type == ChannelType.PSG || channel.Type == ChannelType.PSG4) && channel.LastVolume < 0xF)
 						SetVolumeEvent(channel.ESFId, channel.LastVolume, patternRow);
+#endif
 				}
 			}
 
