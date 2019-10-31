@@ -74,8 +74,9 @@
     <Compile Include="DAO\Exporters\Echo\ProcessingChannel.cs" />
     <Compile Include="DAO\Exporters\Echo\PSGInstrument.cs" />
     <Compile Include="DAO\Exporters\Echo\SampleInstrument.cs" />
+    <Compile Include="DAO\Exporters\ProjectExporter.cs" />
     <Compile Include="DAO\Exporters\Utils\Moto68KWriter.cs" />
-    <Compile Include="DAO\Exporters\Utils\SFXPrioritiesExporter.cs" />
+    <Compile Include="DAO\Exporters\SFXPrioritiesExporter.cs" />
     <Compile Include="DAO\Importers\DMF\DMFGlobalInstruments.cs" />
     <Compile Include="DAO\Importers\DMF\DMFImporter.cs" />
     <Compile Include="DAO\Importers\ZlibFileImporter.cs" />

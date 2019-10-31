@@ -138,6 +138,17 @@ namespace DefleMaskConvert.DAO.Exporters.Utils
 			NewLine();
 		}
 
+		public void Include(string path, Separations separation = Separations.Space)
+		{
+			Tab();
+			_writer.Write("include");
+			_writer.Write(GetSeparationChar(separation));
+			_writer.Write("\"");
+			_writer.Write(path);
+			_writer.Write("\"");
+			NewLine();
+		}
+
 		public void Comment(string text, Separations separation = Separations.Space)
 		{
 			if (!IgnoreComments)

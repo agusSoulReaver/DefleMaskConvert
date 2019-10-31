@@ -41,6 +41,7 @@
 			this.allEchoStreamFormatASMToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.allEchoSongsBinaryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.allEchoSFXsASMToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.echoSFXsPrioritiesASMToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
 			this.echoStreamFormatASMToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.echoStreamFormatESFToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -52,6 +53,8 @@
 			this.songsMode = new System.Windows.Forms.TabPage();
 			this.songsTreeView = new System.Windows.Forms.TreeView();
 			this.sfxsMode = new System.Windows.Forms.TabPage();
+			this.label1 = new System.Windows.Forms.Label();
+			this.btnSFXPriority = new System.Windows.Forms.NumericUpDown();
 			this.sfxsTreeView = new System.Windows.Forms.TreeView();
 			this.unsupportedEffects = new System.Windows.Forms.GroupBox();
 			this.unsupportedTreeView = new System.Windows.Forms.TreeView();
@@ -87,18 +90,17 @@
 			this.openProjectDialog = new System.Windows.Forms.OpenFileDialog();
 			this.exportFolderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog();
 			this.exportBinaryDialog = new System.Windows.Forms.SaveFileDialog();
-			this.btnSFXPriority = new System.Windows.Forms.NumericUpDown();
-			this.label1 = new System.Windows.Forms.Label();
-			this.echoSFXsPrioritiesASMToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.toASMProjectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
 			this.mainMenuStrip.SuspendLayout();
 			this.projectPanel.SuspendLayout();
 			this.audioSection.SuspendLayout();
 			this.songsMode.SuspendLayout();
 			this.sfxsMode.SuspendLayout();
+			((System.ComponentModel.ISupportInitialize)(this.btnSFXPriority)).BeginInit();
 			this.unsupportedEffects.SuspendLayout();
 			this.exportParams.SuspendLayout();
 			this.groupBox1.SuspendLayout();
-			((System.ComponentModel.ISupportInitialize)(this.btnSFXPriority)).BeginInit();
 			this.SuspendLayout();
 			// 
 			// mainMenuStrip
@@ -128,33 +130,33 @@
 			// newToolStripMenuItem
 			// 
 			this.newToolStripMenuItem.Name = "newToolStripMenuItem";
-			this.newToolStripMenuItem.Size = new System.Drawing.Size(119, 22);
+			this.newToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
 			this.newToolStripMenuItem.Text = "New...";
 			this.newToolStripMenuItem.Click += new System.EventHandler(this.newToolStripMenuItem_Click);
 			// 
 			// openToolStripMenuItem
 			// 
 			this.openToolStripMenuItem.Name = "openToolStripMenuItem";
-			this.openToolStripMenuItem.Size = new System.Drawing.Size(119, 22);
+			this.openToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
 			this.openToolStripMenuItem.Text = "Open...";
 			this.openToolStripMenuItem.Click += new System.EventHandler(this.openToolStripMenuItem_Click);
 			// 
 			// saveToolStripMenuItem
 			// 
 			this.saveToolStripMenuItem.Name = "saveToolStripMenuItem";
-			this.saveToolStripMenuItem.Size = new System.Drawing.Size(119, 22);
+			this.saveToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
 			this.saveToolStripMenuItem.Text = "Save";
 			this.saveToolStripMenuItem.Click += new System.EventHandler(this.saveToolStripMenuItem_Click);
 			// 
 			// toolStripSeparator1
 			// 
 			this.toolStripSeparator1.Name = "toolStripSeparator1";
-			this.toolStripSeparator1.Size = new System.Drawing.Size(116, 6);
+			this.toolStripSeparator1.Size = new System.Drawing.Size(149, 6);
 			// 
 			// importToolStripMenuItem
 			// 
 			this.importToolStripMenuItem.Name = "importToolStripMenuItem";
-			this.importToolStripMenuItem.Size = new System.Drawing.Size(119, 22);
+			this.importToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
 			this.importToolStripMenuItem.Text = "Import...";
 			this.importToolStripMenuItem.Click += new System.EventHandler(this.importToolStripMenuItem_Click);
 			// 
@@ -169,7 +171,9 @@
             this.echoSFXsPrioritiesASMToolStripMenuItem,
             this.toolStripSeparator2,
             this.echoStreamFormatASMToolStripMenuItem,
-            this.echoStreamFormatESFToolStripMenuItem});
+            this.echoStreamFormatESFToolStripMenuItem,
+            this.toolStripSeparator3,
+            this.toASMProjectToolStripMenuItem});
 			this.exportToolStripMenuItem.Name = "exportToolStripMenuItem";
 			this.exportToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
 			this.exportToolStripMenuItem.Text = "Export";
@@ -208,6 +212,13 @@
 			this.allEchoSFXsASMToolStripMenuItem.Size = new System.Drawing.Size(227, 22);
 			this.allEchoSFXsASMToolStripMenuItem.Text = "All Echo SFXs (ASM)";
 			this.allEchoSFXsASMToolStripMenuItem.Click += new System.EventHandler(this.allEchoSFXsASMToolStripMenuItem_Click);
+			// 
+			// echoSFXsPrioritiesASMToolStripMenuItem
+			// 
+			this.echoSFXsPrioritiesASMToolStripMenuItem.Name = "echoSFXsPrioritiesASMToolStripMenuItem";
+			this.echoSFXsPrioritiesASMToolStripMenuItem.Size = new System.Drawing.Size(227, 22);
+			this.echoSFXsPrioritiesASMToolStripMenuItem.Text = "Echo SFXs Priorities (ASM)";
+			this.echoSFXsPrioritiesASMToolStripMenuItem.Click += new System.EventHandler(this.echoSFXsPrioritiesASMToolStripMenuItem_Click);
 			// 
 			// toolStripSeparator2
 			// 
@@ -323,6 +334,38 @@
 			this.sfxsMode.TabIndex = 1;
 			this.sfxsMode.Text = "SFXs";
 			this.sfxsMode.UseVisualStyleBackColor = true;
+			// 
+			// label1
+			// 
+			this.label1.AutoSize = true;
+			this.label1.Location = new System.Drawing.Point(18, 484);
+			this.label1.Name = "label1";
+			this.label1.Size = new System.Drawing.Size(61, 13);
+			this.label1.TabIndex = 2;
+			this.label1.Text = "SFX Priority";
+			// 
+			// btnSFXPriority
+			// 
+			this.btnSFXPriority.Location = new System.Drawing.Point(85, 482);
+			this.btnSFXPriority.Maximum = new decimal(new int[] {
+            255,
+            0,
+            0,
+            0});
+			this.btnSFXPriority.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+			this.btnSFXPriority.Name = "btnSFXPriority";
+			this.btnSFXPriority.Size = new System.Drawing.Size(71, 20);
+			this.btnSFXPriority.TabIndex = 1;
+			this.btnSFXPriority.Value = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+			this.btnSFXPriority.ValueChanged += new System.EventHandler(this.btnSFXPriority_ValueChanged);
 			// 
 			// sfxsTreeView
 			// 
@@ -719,44 +762,17 @@
 			this.exportBinaryDialog.Filter = "Echo Stream Format|*.esf";
 			this.exportBinaryDialog.Title = "Export Echo Stream Format";
 			// 
-			// btnSFXPriority
+			// toASMProjectToolStripMenuItem
 			// 
-			this.btnSFXPriority.Location = new System.Drawing.Point(85, 482);
-			this.btnSFXPriority.Maximum = new decimal(new int[] {
-            255,
-            0,
-            0,
-            0});
-			this.btnSFXPriority.Minimum = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-			this.btnSFXPriority.Name = "btnSFXPriority";
-			this.btnSFXPriority.Size = new System.Drawing.Size(71, 20);
-			this.btnSFXPriority.TabIndex = 1;
-			this.btnSFXPriority.Value = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-			this.btnSFXPriority.ValueChanged += new System.EventHandler(this.btnSFXPriority_ValueChanged);
+			this.toASMProjectToolStripMenuItem.Name = "toASMProjectToolStripMenuItem";
+			this.toASMProjectToolStripMenuItem.Size = new System.Drawing.Size(227, 22);
+			this.toASMProjectToolStripMenuItem.Text = "To ASM Project";
+			this.toASMProjectToolStripMenuItem.Click += new System.EventHandler(this.toASMProjectToolStripMenuItem_Click);
 			// 
-			// label1
+			// toolStripSeparator3
 			// 
-			this.label1.AutoSize = true;
-			this.label1.Location = new System.Drawing.Point(18, 484);
-			this.label1.Name = "label1";
-			this.label1.Size = new System.Drawing.Size(61, 13);
-			this.label1.TabIndex = 2;
-			this.label1.Text = "SFX Priority";
-			// 
-			// echoSFXsPrioritiesASMToolStripMenuItem
-			// 
-			this.echoSFXsPrioritiesASMToolStripMenuItem.Name = "echoSFXsPrioritiesASMToolStripMenuItem";
-			this.echoSFXsPrioritiesASMToolStripMenuItem.Size = new System.Drawing.Size(227, 22);
-			this.echoSFXsPrioritiesASMToolStripMenuItem.Text = "Echo SFXs Priorities (ASM)";
-			this.echoSFXsPrioritiesASMToolStripMenuItem.Click += new System.EventHandler(this.echoSFXsPrioritiesASMToolStripMenuItem_Click);
+			this.toolStripSeparator3.Name = "toolStripSeparator3";
+			this.toolStripSeparator3.Size = new System.Drawing.Size(224, 6);
 			// 
 			// EntryPoint
 			// 
@@ -776,12 +792,12 @@
 			this.songsMode.ResumeLayout(false);
 			this.sfxsMode.ResumeLayout(false);
 			this.sfxsMode.PerformLayout();
+			((System.ComponentModel.ISupportInitialize)(this.btnSFXPriority)).EndInit();
 			this.unsupportedEffects.ResumeLayout(false);
 			this.exportParams.ResumeLayout(false);
 			this.exportParams.PerformLayout();
 			this.groupBox1.ResumeLayout(false);
 			this.groupBox1.PerformLayout();
-			((System.ComponentModel.ISupportInitialize)(this.btnSFXPriority)).EndInit();
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
@@ -851,6 +867,8 @@
 		private System.Windows.Forms.Label label1;
 		private System.Windows.Forms.NumericUpDown btnSFXPriority;
 		private System.Windows.Forms.ToolStripMenuItem echoSFXsPrioritiesASMToolStripMenuItem;
+		private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
+		private System.Windows.Forms.ToolStripMenuItem toASMProjectToolStripMenuItem;
 	}
 }
 

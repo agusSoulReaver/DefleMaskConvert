@@ -3,7 +3,7 @@
 using DefleMaskConvert.DAO;
 using DefleMaskConvert.DAO.DefleMask;
 using DefleMaskConvert.DAO.Exporters.Echo;
-using DefleMaskConvert.DAO.Exporters.Utils;
+using DefleMaskConvert.DAO.Exporters;
 using DefleMaskConvert.DAO.Importers.DMF;
 using Ionic.Zlib;
 using System;
@@ -546,6 +546,137 @@ namespace DefleMaskConvert
 			}
 
 			return data;
+		}
+
+		private void toASMProjectToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			if (exportFolderBrowserDialog.ShowDialog() != DialogResult.OK) return;
+
+			Cursor.Current = Cursors.WaitCursor;
+			_sfxs.Clear();
+			var fails = new List<string>();
+			var includes = new List<string>();
+			var includesWLabel = new List<KeyValuePair<string, string>>();
+			string pathBase = exportFolderBrowserDialog.SelectedPath;
+
+			// exporting instruments
+			var activeInstruments = DMFGlobalInstruments.GetActiveInstruments(_project.Songs, _project.SFXs);
+			List<Instrument> instruments = DMF2EchoInstruments.Convert(DMFGlobalInstruments.GetActiveInstruments(_project.Songs, _project.SFXs));
+			string path = Path.Combine(pathBase, "instruments.asm");
+			try
+			{
+				EchoInstruments2ASM.SaveFile(path, instruments);
+				includes.Add(path);
+			}
+			catch (Exception)
+			{
+				fails.Add(path);
+			}
+
+			// exporting songs
+			Directory.CreateDirectory(Path.Combine(pathBase, "music"));
+			foreach (var song in _project.Songs)
+			{
+				if (!song.Export) continue;
+
+				EchoESF data = DMF2EchoESF.Convert(song, activeInstruments);
+				path = Path.Combine(pathBase, "music", song.ExportName + ".asm");
+				try
+				{
+					EchoESM2ASM.SaveFile(path, data, song.SongName, song.SongAuthor);
+					includesWLabel.Add(new KeyValuePair<string,string>(string.Format("BGM_{0}", song.ExportName), path));
+				}
+				catch (Exception)
+				{
+					fails.Add(path);
+				}
+			}
+
+			// exporting SFX
+			foreach (var container in _project.SFXs)
+			{
+				if (!container.Export) continue;
+
+				string nameFormat = container.FXs.Count > 1 ? SFX_NAME_MULTI : SFX_NAME_SIMPLE;
+				foreach (var fx in container.FXs)
+				{
+					if (!fx.Export) continue;
+
+					EchoESF data = DMF2EchoESF.Convert(fx, activeInstruments);
+					data.ExportName = string.Format(nameFormat, container.ExportName, fx.ExportName);
+					_sfxs.Add(data);
+				}
+			}
+
+			path = Path.Combine(pathBase, "sfxs.asm");
+			try
+			{
+				EchoESM2ASM.SaveFile(path, _sfxs);
+				includes.Add(path);
+			}
+			catch (Exception)
+			{
+				fails.Add(path);
+			}
+
+			// exporting priorities
+			var priorities = GetSFXsPrioritiesData();
+			path = Path.Combine(pathBase, "priorities.asm");
+			try
+			{
+				SFXPrioritiesExporter.SaveFile(path, priorities);
+				includes.Add(path);
+			}
+			catch (Exception)
+			{
+				fails.Add(path);
+			}
+
+			// exporting link file
+			for (int i = 0; i < pathBase.Length && i < _project.FilePath.Length; i++)
+			{
+				if (pathBase[i] != _project.FilePath[i])
+				{
+					path = pathBase.Substring(0, i);
+					Console.WriteLine(path);
+					for (i = 0; i < includes.Count; i++)
+					{
+						includes[i] = includes[i].Replace(path, "");
+					}
+					for (i = 0; i < includesWLabel.Count; i++)
+					{
+						var pair = includesWLabel[i];
+						pair = new KeyValuePair<string, string>(pair.Key, pair.Value.Replace(path, ""));
+						includesWLabel[i] = pair;
+					}
+					break;
+				}
+			}
+
+			path = Path.Combine(pathBase, "_link.asm");
+			try
+			{
+				ProjectExporter.Save(path, includes, includesWLabel);
+			}
+			catch (Exception)
+			{
+				fails.Add(path);
+			}
+
+			// try to show errors
+			Cursor.Current = Cursors.Default;
+			if (fails.Count > 0)
+			{
+				_message.Clear();
+				_message.AppendLine("Unable to export one or more files.");
+				foreach (var failPath in fails)
+				{
+					_message.Append(" - ");
+					_message.AppendLine(failPath);
+				}
+
+				ShowErrorMessage(_message.ToString());
+			}
 		}
 		#endregion
 

@@ -1,11 +1,12 @@
-﻿using System;
+﻿using DefleMaskConvert.DAO.Exporters.Utils;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DefleMaskConvert.DAO.Exporters.Utils
+namespace DefleMaskConvert.DAO.Exporters
 {
 	public class SFXPrioritiesExporter
 	{
