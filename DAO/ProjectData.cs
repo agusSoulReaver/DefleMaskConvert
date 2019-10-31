@@ -143,6 +143,9 @@ namespace DefleMaskConvert.DAO
 		[XmlAttribute]
 		public ESF_PCMRate PCMRate;
 
+		[XmlAttribute]
+		public byte Priority = 1;
+
 		[XmlIgnore]
 		public List<bool> ExportChannels = new List<bool>();
 
@@ -211,6 +214,7 @@ namespace DefleMaskConvert.DAO
 				save.LockChannels = song.LockChannels;
 				save.LoopWholeTrack = song.LoopWholeTrack;
 				save.PCMRate = song.PCMRate;
+				save.Priority = song.Priority;
 
 				foreach (var channel in song.Channels)
 				{

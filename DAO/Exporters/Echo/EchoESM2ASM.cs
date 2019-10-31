@@ -50,6 +50,7 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 		{
 			if (data.Header.Count > 0)
 			{
+				_writer.Tab();
 				_writer.Comment("Header");
 				foreach(var eventData in data.Header)
 				{
@@ -61,6 +62,7 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 			{
 				foreach (var row in page.Rows)
 				{
+					_writer.Tab();
 					_writer.Comment(string.Format("Page {0} Row {1}", page.Index.ToString("X").PadLeft(2, '0'), row.Index.ToString().PadLeft(3, '0')));
 					foreach (var eventData in row.Events)
 					{
@@ -72,6 +74,7 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 
 			if (data.Footer.Count > 0)
 			{
+				_writer.Tab();
 				_writer.Comment("Footer");
 				foreach (var eventData in data.Footer)
 				{

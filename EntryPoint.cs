@@ -3,6 +3,7 @@
 using DefleMaskConvert.DAO;
 using DefleMaskConvert.DAO.DefleMask;
 using DefleMaskConvert.DAO.Exporters.Echo;
+using DefleMaskConvert.DAO.Exporters.Utils;
 using DefleMaskConvert.DAO.Importers.DMF;
 using Ionic.Zlib;
 using System;
@@ -182,6 +183,14 @@ namespace DefleMaskConvert
 		private bool IsSFXMode()
 		{
 			return audioSection.SelectedTab == sfxsMode;
+		}
+
+		private void audioSection_SelectedIndexChanged(object sender, EventArgs e)
+		{
+			if (IsSFXMode())
+				exportParams.Enabled = false;
+			else
+				RefreshExportEchoButtons();
 		}
 
 		private string GetSongExportName(string path, IEnumerable<string> names)
@@ -494,6 +503,50 @@ namespace DefleMaskConvert
 				ShowErrorMessage(_message.ToString());
 			}
 		}
+
+		private void echoSFXsPrioritiesASMToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			exportAssemblyDialog.FileName = "";
+			exportAssemblyDialog.Title = "Export SFXs Priorities";
+			if (exportAssemblyDialog.ShowDialog() != DialogResult.OK) return;
+
+			var data = GetSFXsPrioritiesData();
+			try
+			{
+				SFXPrioritiesExporter.SaveFile(exportAssemblyDialog.FileName, data);
+			}
+			catch (Exception)
+			{
+				_message.Clear();
+				_message.AppendLine("Unable to export file:");
+
+				_message.Append(" - ");
+				_message.AppendLine(exportAssemblyDialog.FileName);
+
+				ShowErrorMessage(_message.ToString());
+			}
+		}
+
+		private Dictionary<string, byte> GetSFXsPrioritiesData()
+		{
+			var data = new Dictionary<string, byte>();
+			foreach (var container in _project.SFXs)
+			{
+				if (!container.Export) continue;
+
+				string nameFormat = container.FXs.Count > 1 ? SFX_NAME_MULTI : SFX_NAME_SIMPLE;
+				nameFormat = nameFormat + "Priority";
+				foreach (var fx in container.FXs)
+				{
+					if (!fx.Export) continue;
+
+					string key = string.Format(nameFormat, container.ExportName, fx.ExportName);
+					data.Add(key, fx.Priority);
+				}
+			}
+
+			return data;
+		}
 		#endregion
 
 		#region Export Properties
@@ -621,6 +674,8 @@ namespace DefleMaskConvert
 
 				sfxsTreeView.Nodes.Add(container);
 			}
+
+			RefreshSFXPriority(null);
 		}
 
 		private void sfxsTreeView_AfterLabelEdit(object sender, NodeLabelEditEventArgs e)
@@ -675,6 +730,32 @@ namespace DefleMaskConvert
 					RefreshExportEchoButtons();
 					break;
 			}
+		}
+
+		private void sfxsTreeView_AfterSelect(object sender, TreeViewEventArgs e)
+		{
+			RefreshSFXPriority(e.Node);
+		}
+
+		private void RefreshSFXPriority(TreeNode node)
+		{
+			bool selected = node != null && node.Tag is DMFData;
+			btnSFXPriority.Enabled = selected;
+			if (selected)
+			{
+				var data = node.Tag as DMFData;
+				btnSFXPriority.Tag = data;
+				btnSFXPriority.Value = data.Priority;
+			}
+			else
+				btnSFXPriority.Tag = null;
+		}
+
+		private void btnSFXPriority_ValueChanged(object sender, EventArgs e)
+		{
+			var data = btnSFXPriority.Tag as DMFData;
+			if (data != null)
+				data.Priority = (byte)btnSFXPriority.Value;
 		}
 		#endregion
 
@@ -1024,6 +1105,7 @@ namespace DefleMaskConvert
 								var savedData = sfx.SaveSFX[i];
 								fx.Export = savedData.Export;
 								fx.ExportName = savedData.ExportName;
+								fx.Priority = savedData.Priority;
 								SetSongSaveData(fx, savedData);
 							}
 						}

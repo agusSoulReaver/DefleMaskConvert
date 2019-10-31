@@ -21,6 +21,7 @@ namespace DefleMaskConvert.DAO.DefleMask
 		public bool LockChannels { get; set; }
 		public bool LoopWholeTrack { get; set; }
 		public ESF_PCMRate PCMRate { get; set; }
+		public byte Priority { get; set; }
 
 		public string SongName { get; set; }
 		public string SongAuthor { get; set; }
@@ -115,7 +116,8 @@ namespace DefleMaskConvert.DAO.DefleMask
 					var note = channel.Pages[0].Notes[noteIndex];
 					if (note.Note == (ushort)Notes.Off)
 					{
-						totalRows = (uint)noteIndex+1;
+						uint end = (uint)noteIndex+1;
+						if(end > totalRows) totalRows = end;
 						break;
 					}
 				}
