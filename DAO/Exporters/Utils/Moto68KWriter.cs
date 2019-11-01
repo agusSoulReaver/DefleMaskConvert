@@ -132,10 +132,19 @@ namespace DefleMaskConvert.DAO.Exporters.Utils
 
 		public void Even()
 		{
-			Tab();
+			Even(true);
+		}
+
+		private void Even(bool full)
+		{
+			if(full) Tab();
 			_writer.Write("even");
-			Comment("Command to not break word-size boundaries");
-			NewLine();
+
+			if (full)
+			{
+				Comment("Command to not break word-size boundaries");
+				NewLine();
+			}
 		}
 
 		public void Include(string path, Separations separation = Separations.Space)
@@ -147,6 +156,16 @@ namespace DefleMaskConvert.DAO.Exporters.Utils
 			_writer.Write(path);
 			_writer.Write("\"");
 			NewLine();
+		}
+
+		public void DefineText(string text, string comment = null)
+		{
+			DefineConstantHeader(Sizes.Byte);
+			_writer.Write("\"");
+			Text(text);
+			_writer.Write("\", 0");
+			DefineConstantTail(comment);
+			Even();
 		}
 
 		public void Comment(string text, Separations separation = Separations.Space)
@@ -331,6 +350,13 @@ namespace DefleMaskConvert.DAO.Exporters.Utils
 		{
 			DefineConstantHeader(Sizes.LongWord);
 			Number(value, format);
+			DefineConstantTail(comment);
+		}
+
+		public void DefineConstant(string label, Sizes size, string comment = null)
+		{
+			DefineConstantHeader(size);
+			Text(label);
 			DefineConstantTail(comment);
 		}
 

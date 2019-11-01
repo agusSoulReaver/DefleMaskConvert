@@ -550,6 +550,11 @@ namespace DefleMaskConvert
 
 		private void toASMProjectToolStripMenuItem_Click(object sender, EventArgs e)
 		{
+			if (string.IsNullOrWhiteSpace(exportFolderBrowserDialog.SelectedPath))
+			{
+				exportFolderBrowserDialog.SelectedPath = Path.GetDirectoryName(_project.FilePath);
+			}
+
 			if (exportFolderBrowserDialog.ShowDialog() != DialogResult.OK) return;
 
 			Cursor.Current = Cursors.WaitCursor;
@@ -557,6 +562,7 @@ namespace DefleMaskConvert
 			var fails = new List<string>();
 			var includes = new List<string>();
 			var includesWLabel = new List<KeyValuePair<string, string>>();
+			var songReferences = new Dictionary<string,string>();
 			string pathBase = exportFolderBrowserDialog.SelectedPath;
 
 			// exporting instruments
@@ -581,10 +587,13 @@ namespace DefleMaskConvert
 
 				EchoESF data = DMF2EchoESF.Convert(song, activeInstruments);
 				path = Path.Combine(pathBase, "music", song.ExportName + ".asm");
+				string label = string.Format("BGM_{0}", song.ExportName);
+
 				try
 				{
 					EchoESM2ASM.SaveFile(path, data, song.SongName, song.SongAuthor);
-					includesWLabel.Add(new KeyValuePair<string,string>(string.Format("BGM_{0}", song.ExportName), path));
+					includesWLabel.Add(new KeyValuePair<string,string>(label, path));
+					songReferences.Add(label, song.ExportName);
 				}
 				catch (Exception)
 				{
@@ -656,7 +665,18 @@ namespace DefleMaskConvert
 			path = Path.Combine(pathBase, "_link.asm");
 			try
 			{
-				ProjectExporter.Save(path, includes, includesWLabel);
+				ProjectExporter.SaveIncludes(path, includes, includesWLabel);
+			}
+			catch (Exception)
+			{
+				fails.Add(path);
+			}
+
+			// exportinf juckbox
+			path = Path.Combine(pathBase, "_jukebox.asm");
+			try
+			{
+				ProjectExporter.SaveJukebox(path, songReferences, _sfxs);
 			}
 			catch (Exception)
 			{
