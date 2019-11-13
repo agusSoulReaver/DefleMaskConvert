@@ -45,6 +45,8 @@
 			this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
 			this.echoStreamFormatASMToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.echoStreamFormatESFToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
+			this.toASMProjectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.openDefleMaskDialog = new System.Windows.Forms.OpenFileDialog();
@@ -90,8 +92,6 @@
 			this.openProjectDialog = new System.Windows.Forms.OpenFileDialog();
 			this.exportFolderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog();
 			this.exportBinaryDialog = new System.Windows.Forms.SaveFileDialog();
-			this.toASMProjectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
 			this.mainMenuStrip.SuspendLayout();
 			this.projectPanel.SuspendLayout();
 			this.audioSection.SuspendLayout();
@@ -130,33 +130,33 @@
 			// newToolStripMenuItem
 			// 
 			this.newToolStripMenuItem.Name = "newToolStripMenuItem";
-			this.newToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+			this.newToolStripMenuItem.Size = new System.Drawing.Size(119, 22);
 			this.newToolStripMenuItem.Text = "New...";
 			this.newToolStripMenuItem.Click += new System.EventHandler(this.newToolStripMenuItem_Click);
 			// 
 			// openToolStripMenuItem
 			// 
 			this.openToolStripMenuItem.Name = "openToolStripMenuItem";
-			this.openToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+			this.openToolStripMenuItem.Size = new System.Drawing.Size(119, 22);
 			this.openToolStripMenuItem.Text = "Open...";
 			this.openToolStripMenuItem.Click += new System.EventHandler(this.openToolStripMenuItem_Click);
 			// 
 			// saveToolStripMenuItem
 			// 
 			this.saveToolStripMenuItem.Name = "saveToolStripMenuItem";
-			this.saveToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+			this.saveToolStripMenuItem.Size = new System.Drawing.Size(119, 22);
 			this.saveToolStripMenuItem.Text = "Save";
 			this.saveToolStripMenuItem.Click += new System.EventHandler(this.saveToolStripMenuItem_Click);
 			// 
 			// toolStripSeparator1
 			// 
 			this.toolStripSeparator1.Name = "toolStripSeparator1";
-			this.toolStripSeparator1.Size = new System.Drawing.Size(149, 6);
+			this.toolStripSeparator1.Size = new System.Drawing.Size(116, 6);
 			// 
 			// importToolStripMenuItem
 			// 
 			this.importToolStripMenuItem.Name = "importToolStripMenuItem";
-			this.importToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+			this.importToolStripMenuItem.Size = new System.Drawing.Size(119, 22);
 			this.importToolStripMenuItem.Text = "Import...";
 			this.importToolStripMenuItem.Click += new System.EventHandler(this.importToolStripMenuItem_Click);
 			// 
@@ -175,7 +175,7 @@
             this.toolStripSeparator3,
             this.toASMProjectToolStripMenuItem});
 			this.exportToolStripMenuItem.Name = "exportToolStripMenuItem";
-			this.exportToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+			this.exportToolStripMenuItem.Size = new System.Drawing.Size(119, 22);
 			this.exportToolStripMenuItem.Text = "Export";
 			// 
 			// echoInstrumentsASMToolStripMenuItem
@@ -238,6 +238,18 @@
 			this.echoStreamFormatESFToolStripMenuItem.Size = new System.Drawing.Size(227, 22);
 			this.echoStreamFormatESFToolStripMenuItem.Text = "Echo Song (ESF)";
 			this.echoStreamFormatESFToolStripMenuItem.Click += new System.EventHandler(this.echoStreamFormatESFToolStripMenuItem_Click);
+			// 
+			// toolStripSeparator3
+			// 
+			this.toolStripSeparator3.Name = "toolStripSeparator3";
+			this.toolStripSeparator3.Size = new System.Drawing.Size(224, 6);
+			// 
+			// toASMProjectToolStripMenuItem
+			// 
+			this.toASMProjectToolStripMenuItem.Name = "toASMProjectToolStripMenuItem";
+			this.toASMProjectToolStripMenuItem.Size = new System.Drawing.Size(227, 22);
+			this.toASMProjectToolStripMenuItem.Text = "To ASM Project";
+			this.toASMProjectToolStripMenuItem.Click += new System.EventHandler(this.toASMProjectToolStripMenuItem_Click);
 			// 
 			// helpToolStripMenuItem
 			// 
@@ -337,6 +349,7 @@
 			// 
 			// label1
 			// 
+			this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
 			this.label1.AutoSize = true;
 			this.label1.Location = new System.Drawing.Point(18, 484);
 			this.label1.Name = "label1";
@@ -346,6 +359,7 @@
 			// 
 			// btnSFXPriority
 			// 
+			this.btnSFXPriority.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
 			this.btnSFXPriority.Location = new System.Drawing.Point(85, 482);
 			this.btnSFXPriority.Maximum = new decimal(new int[] {
             255,
@@ -761,18 +775,6 @@
 			// 
 			this.exportBinaryDialog.Filter = "Echo Stream Format|*.esf";
 			this.exportBinaryDialog.Title = "Export Echo Stream Format";
-			// 
-			// toASMProjectToolStripMenuItem
-			// 
-			this.toASMProjectToolStripMenuItem.Name = "toASMProjectToolStripMenuItem";
-			this.toASMProjectToolStripMenuItem.Size = new System.Drawing.Size(227, 22);
-			this.toASMProjectToolStripMenuItem.Text = "To ASM Project";
-			this.toASMProjectToolStripMenuItem.Click += new System.EventHandler(this.toASMProjectToolStripMenuItem_Click);
-			// 
-			// toolStripSeparator3
-			// 
-			this.toolStripSeparator3.Name = "toolStripSeparator3";
-			this.toolStripSeparator3.Size = new System.Drawing.Size(224, 6);
 			// 
 			// EntryPoint
 			// 

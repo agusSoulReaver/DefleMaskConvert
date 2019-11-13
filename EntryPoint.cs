@@ -880,6 +880,10 @@ namespace DefleMaskConvert
 					exportParams.Enabled = false;
 					RefreshExportEchoButtons();
 					break;
+
+				case Keys.F2:
+					sfxsTreeView.SelectedNode.BeginEdit();
+					break;
 			}
 		}
 
@@ -945,15 +949,22 @@ namespace DefleMaskConvert
 
 		private void songsTreeView_KeyUp(object sender, KeyEventArgs e)
 		{
-			if (e.KeyCode == Keys.Delete && songsTreeView.SelectedNode != null)
+			if (songsTreeView.SelectedNode == null) return;
+			switch (e.KeyCode)
 			{
-				DMFData data = (DMFData)songsTreeView.SelectedNode.Tag;
-				_project.Songs.Remove(data);
+				case Keys.Delete:
+					DMFData data = (DMFData)songsTreeView.SelectedNode.Tag;
+					_project.Songs.Remove(data);
 
-				RefreshDetailsView();
-				unsupportedEffects.Visible = false;
-				exportParams.Enabled = false;
-				RefreshExportEchoButtons();
+					RefreshDetailsView();
+					unsupportedEffects.Visible = false;
+					exportParams.Enabled = false;
+					RefreshExportEchoButtons();
+					break;
+
+				case Keys.F2:
+					songsTreeView.SelectedNode.BeginEdit();
+					break;
 			}
 		}
 
