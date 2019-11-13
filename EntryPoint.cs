@@ -219,10 +219,16 @@ namespace DefleMaskConvert
 			allEchoStreamFormatASMToolStripMenuItem.Enabled = hadProject && _project.Songs.Count > 0;
 			allEchoSongsBinaryToolStripMenuItem.Enabled = hadProject && _project.Songs.Count > 0;
 
+            toASMProjectToolStripMenuItem.Enabled = hadProject;
+
 			bool enabled = songsTreeView.SelectedNode != null;
 			echoStreamFormatASMToolStripMenuItem.Enabled = enabled;
 			echoStreamFormatESFToolStripMenuItem.Enabled = enabled;
 			exportParams.Enabled = enabled;
+
+			enabled = IsSFXMode();
+			echoSFXsPrioritiesASMToolStripMenuItem.Enabled = enabled;
+			allEchoSFXsASMToolStripMenuItem.Enabled = enabled;
 		}
 
 		private void songsTreeView_AfterSelect(object sender, TreeViewEventArgs e)
