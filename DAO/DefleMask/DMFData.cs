@@ -21,7 +21,13 @@ namespace DefleMaskConvert.DAO.DefleMask
 		public bool LockChannels { get; set; }
 		public bool LoopWholeTrack { get; set; }
 		public ESF_PCMRate PCMRate { get; set; }
-		public byte Priority { get; set; }
+
+		private byte _priority = 1;
+		public byte Priority
+		{
+			get { return _priority; }
+			set { _priority = Math.Max((byte)1, value); }
+		}
 
 		public string SongName { get; set; }
 		public string SongAuthor { get; set; }
@@ -75,6 +81,7 @@ namespace DefleMaskConvert.DAO.DefleMask
 			this.CustomHz3 = other.CustomHz3;
 
 			this.PatternPages = 1;
+			Priority = 1;
 
 			this.Instruments = other.Instruments;
 			this.WaveTables = other.WaveTables;
