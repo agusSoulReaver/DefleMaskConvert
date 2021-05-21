@@ -258,6 +258,28 @@ namespace DefleMaskConvert
 		}
 
 		#region Export
+		private List<InstrumentData> TryGetInstrumentsData()
+		{
+			var data = DMFGlobalInstruments.GetActiveInstruments(_project.Songs, _project.SFXs);
+			var errors = DMFGlobalInstruments.GetSampleErrors();
+			if (errors.Count > 0)
+			{
+				_message.Clear();
+				_message.AppendLine("Unable to find sample:");
+
+				foreach (var e in errors)
+				{
+					_message.Append(" - ");
+					_message.AppendLine(e);
+				}
+
+				ShowErrorMessage(_message.ToString());
+				return null;
+			}
+
+			return data;
+		}
+
 		private void echoInstrumentsASMToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			exportAssemblyDialog.FileName = "";
@@ -265,7 +287,14 @@ namespace DefleMaskConvert
 			if (exportAssemblyDialog.ShowDialog() != DialogResult.OK) return;
 			
 			Cursor.Current = Cursors.WaitCursor;
-			List<Instrument> instruments = DMF2EchoInstruments.Convert(DMFGlobalInstruments.GetActiveInstruments(_project.Songs, _project.SFXs));
+			var instrumentData = TryGetInstrumentsData();
+			if (instrumentData == null)
+			{
+				Cursor.Current = Cursors.Default;
+				return;
+			}
+
+			List<Instrument> instruments = DMF2EchoInstruments.Convert(instrumentData);
 			try
 			{
 				EchoInstruments2ASM.SaveFile(exportAssemblyDialog.FileName, instruments);
@@ -292,7 +321,13 @@ namespace DefleMaskConvert
 			if (exportAssemblyDialog.ShowDialog() != DialogResult.OK) return;
 			
 			Cursor.Current = Cursors.WaitCursor;
-			EchoESF data = DMF2EchoESF.Convert(dmf, DMFGlobalInstruments.GetActiveInstruments(_project.Songs, _project.SFXs));
+			var instrumentData = TryGetInstrumentsData();
+			if (instrumentData == null)
+			{
+				Cursor.Current = Cursors.Default;
+				return;
+			}
+			EchoESF data = DMF2EchoESF.Convert(dmf, instrumentData);
 
 			try
 			{
@@ -319,7 +354,13 @@ namespace DefleMaskConvert
 			if (exportBinaryDialog.ShowDialog() != DialogResult.OK) return;
 
 			Cursor.Current = Cursors.WaitCursor;
-			EchoESF data = DMF2EchoESF.Convert(dmf, DMFGlobalInstruments.GetActiveInstruments(_project.Songs, _project.SFXs));
+			var instrumentData = TryGetInstrumentsData();
+			if (instrumentData == null)
+			{
+				Cursor.Current = Cursors.Default;
+				return;
+			}
+			EchoESF data = DMF2EchoESF.Convert(dmf, instrumentData);
 
 			try
 			{
@@ -344,14 +385,19 @@ namespace DefleMaskConvert
 			if (exportFolderBrowserDialog.ShowDialog() != DialogResult.OK) return;
 
 			Cursor.Current = Cursors.WaitCursor;
-			var fails = new List<string>();
-			var activeInstruments = DMFGlobalInstruments.GetActiveInstruments(_project.Songs, _project.SFXs);
+			var instrumentData = TryGetInstrumentsData();
+			if (instrumentData == null)
+			{
+				Cursor.Current = Cursors.Default;
+				return;
+			}
 
+			var fails = new List<string>();
 			foreach(var song in _project.Songs)
 			{
 				if (!song.Export) continue;
 
-				EchoESF data = DMF2EchoESF.Convert(song, activeInstruments);
+				EchoESF data = DMF2EchoESF.Convert(song, instrumentData);
 				string path = Path.Combine(exportFolderBrowserDialog.SelectedPath, song.ExportName + ".asm");
 				try
 				{
@@ -383,14 +429,19 @@ namespace DefleMaskConvert
 			if (exportFolderBrowserDialog.ShowDialog() != DialogResult.OK) return;
 
 			Cursor.Current = Cursors.WaitCursor;
-			var fails = new List<string>();
-			var activeInstruments = DMFGlobalInstruments.GetActiveInstruments(_project.Songs, _project.SFXs);
+			var instrumentData = TryGetInstrumentsData();
+			if (instrumentData == null)
+			{
+				Cursor.Current = Cursors.Default;
+				return;
+			}
 
+			var fails = new List<string>();
 			foreach (var song in _project.Songs)
 			{
 				if (!song.Export) continue;
 
-				EchoESF data = DMF2EchoESF.Convert(song, activeInstruments);
+				EchoESF data = DMF2EchoESF.Convert(song, instrumentData);
 				string path = Path.Combine(exportFolderBrowserDialog.SelectedPath, song.ExportName + ".esf");
 				try
 				{
@@ -422,9 +473,15 @@ namespace DefleMaskConvert
 			if (exportFolderBrowserDialog.ShowDialog() != DialogResult.OK) return;
 
 			Cursor.Current = Cursors.WaitCursor;
-			var fails = new List<string>();
+			var instrumentData = TryGetInstrumentsData();
+			if (instrumentData == null)
+			{
+				Cursor.Current = Cursors.Default;
+				return;
+			}
 
-			List<Instrument> instruments = DMF2EchoInstruments.Convert(DMFGlobalInstruments.GetActiveInstruments(_project.Songs, _project.SFXs));
+			var fails = new List<string>();
+			List<Instrument> instruments = DMF2EchoInstruments.Convert(instrumentData);
 			int index = -1;
 			foreach(var data in instruments)
 			{
@@ -473,9 +530,15 @@ namespace DefleMaskConvert
 			if (exportAssemblyDialog.ShowDialog() != DialogResult.OK) return;
 
 			Cursor.Current = Cursors.WaitCursor;
+			var activeInstruments = TryGetInstrumentsData();
+			if (activeInstruments == null)
+			{
+				Cursor.Current = Cursors.Default;
+				return;
+			}
+
 			_sfxs.Clear();
 			var fails = new List<string>();
-			var activeInstruments = DMFGlobalInstruments.GetActiveInstruments(_project.Songs, _project.SFXs);
 
 			foreach (var container in _project.SFXs)
 			{
@@ -572,8 +635,15 @@ namespace DefleMaskConvert
 			string pathBase = exportFolderBrowserDialog.SelectedPath;
 
 			// exporting instruments
-			var activeInstruments = DMFGlobalInstruments.GetActiveInstruments(_project.Songs, _project.SFXs);
-			List<Instrument> instruments = DMF2EchoInstruments.Convert(DMFGlobalInstruments.GetActiveInstruments(_project.Songs, _project.SFXs));
+			Cursor.Current = Cursors.WaitCursor;
+			var activeInstruments = TryGetInstrumentsData();
+			if (activeInstruments == null)
+			{
+				Cursor.Current = Cursors.Default;
+				return;
+			}
+
+			List<Instrument> instruments = DMF2EchoInstruments.Convert(activeInstruments);
 			string path = Path.Combine(pathBase, "instruments.asm");
 			try
 			{

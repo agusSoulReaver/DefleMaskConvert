@@ -41,15 +41,17 @@ namespace DefleMaskConvert.DAO.Importers.DMF
 
 		private const int DAC_CHANNEL = 5;
 		static private readonly List<InstrumentData> _activeInstruments = new List<InstrumentData>();
+		static private readonly List<string> _sampleErrors = new List<string>();
 		static public List<InstrumentData> GetActiveInstruments(List<DMFData> songs, List<SFXData> sfxs)
 		{
 			_activeInstruments.Clear();
+			_sampleErrors.Clear();
 
-			ExtractInstruments(songs);
+			ExtractInstruments(songs, _sampleErrors);
 			foreach(var fxs in sfxs)
 			{
 				if (fxs.Export)
-					ExtractInstruments(fxs.FXs);
+					ExtractInstruments(fxs.FXs, _sampleErrors);
 			}
 
 			_activeInstruments.Add(PSGInstrumentData.DEFAULT_PSG_INSTRUMENT);
@@ -58,7 +60,12 @@ namespace DefleMaskConvert.DAO.Importers.DMF
 			return _activeInstruments;
 		}
 
-		static private void ExtractInstruments(List<DMFData> data)
+		static public List<string> GetSampleErrors()
+		{
+			return _sampleErrors;
+		}
+
+		static private void ExtractInstruments(List<DMFData> data, List<string> sampleErrors)
 		{
 			foreach (var dmf in data)
 			{
@@ -91,9 +98,14 @@ namespace DefleMaskConvert.DAO.Importers.DMF
 									//Notes were 1-based, now 0-based from here
 									if (note == Constants.LAST_NOTE) note = 0;
 
-									SampleData sample = dmf.Samples[note];
-									if (!_activeInstruments.Contains(sample))
-										_activeInstruments.Add(sample);
+									if (note < dmf.Samples.Count)
+									{
+										SampleData sample = dmf.Samples[note];
+										if (!_activeInstruments.Contains(sample))
+											_activeInstruments.Add(sample);
+									}
+									else
+										_sampleErrors.Add(string.Format("exportName={0} pattern={1} row={2}", dmf.ExportName, patternIndex, row));
 								}
 							}
 							else if ((byte)noteData.Instrument != 0xFF)
