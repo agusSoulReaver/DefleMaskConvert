@@ -403,9 +403,9 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 				channel.lastPanning = 0x11;
 
 				//Turn off effects which stop at note off
-				channel.m_effectPortaNote.PortaNote = EffectMode.Off;
-				channel.m_effectPortmento.Porta = EffectMode.Off;
-				channel.m_effectVibrato.mode = EffectMode.Off;
+				//channel.m_effectPortaNote.PortaNote = EffectMode.Off;
+				//channel.m_effectPortmento.Porta = EffectMode.Off;
+				//channel.m_effectVibrato.mode = EffectMode.Off;
 				channel.m_effectVolSlide.VolSlide = EffectMode.Off;
 				channel.m_effectPSGNoise.Mode = EffectMode.Off;
 				channel.m_effectPSGNoise.EnvelopeSize = 0;
