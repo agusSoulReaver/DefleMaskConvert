@@ -33,7 +33,7 @@ namespace DefleMaskConvert
 		private string _title;
 
 		private CheckBox[] _channels;
-		private RadioButton[] _PCMRates;
+		//private RadioButton[] _PCMRates;
 		private StringBuilder _message = new StringBuilder();
 
 		public EntryPoint()
@@ -45,6 +45,7 @@ namespace DefleMaskConvert
 			projectPanel.Visible = false;
 			saveToolStripMenuItem.Enabled = false;
 			importToolStripMenuItem.Enabled = false;
+			settingsToolStripMenuItem.Enabled = false;
 			_title = this.Text;
 
 			_channels = new CheckBox[]
@@ -61,22 +62,22 @@ namespace DefleMaskConvert
 				btnExportChannelPSGNoise
 			};
 
-			_PCMRates = new RadioButton[]
-			{
-				btnRateNotChange,
-				btnRate26632,
-				btnRate17755,
-				btnRate13316,
-				btnRate10653,
-				btnRate8877,
-				btnRate7609,
-				btnRate6658,
-				btnRate5918,
-				btnRate5326,
-				btnRate4842,
-				btnRate4439,
-				btnRate4097,
-			};
+			//_PCMRates = new RadioButton[]
+			//{
+			//	btnRateNotChange,
+			//	btnRate26632,
+			//	btnRate17755,
+			//	btnRate13316,
+			//	btnRate10653,
+			//	btnRate8877,
+			//	btnRate7609,
+			//	btnRate6658,
+			//	btnRate5918,
+			//	btnRate5326,
+			//	btnRate4842,
+			//	btnRate4439,
+			//	btnRate4097,
+			//};
 		}
 
 		private void importToolStripMenuItem_Click(object sender, EventArgs e)
@@ -557,7 +558,7 @@ namespace DefleMaskConvert
 
 			try
 			{
-				EchoESM2ASM.SaveFile(exportAssemblyDialog.FileName, _sfxs);
+				EchoESM2ASM.SaveFile(exportAssemblyDialog.FileName, _sfxs, _project.ExportChangeBitRateAction);
 				Cursor.Current = Cursors.Default;
 			}
 			catch (Exception)
@@ -696,7 +697,7 @@ namespace DefleMaskConvert
 			path = Path.Combine(pathBase, "sfxs.asm");
 			try
 			{
-				EchoESM2ASM.SaveFile(path, _sfxs);
+				EchoESM2ASM.SaveFile(path, _sfxs, _project.ExportChangeBitRateAction);
 				includes.Add(path);
 			}
 			catch (Exception)
@@ -783,7 +784,7 @@ namespace DefleMaskConvert
 			_isChanging = true;
 
 			btnLockChannels.Checked = data.LockChannels;
-			_PCMRates[(int)data.PCMRate].Checked = true;
+			//_PCMRates[(int)data.PCMRate].Checked = true;
 
 			if (data.IsLoopJumpSet())
 			{
@@ -860,24 +861,24 @@ namespace DefleMaskConvert
 			dmf.LoopWholeTrack = btnLoopWholeTrack.Checked;
 		}
 
-		private void btnPCMRateCheckedChanged(object sender, EventArgs e)
-		{
-			if (_isChanging) return;
-			_isChanging = true;
+		//private void btnPCMRateCheckedChanged(object sender, EventArgs e)
+		//{
+		//	if (_isChanging) return;
+		//	_isChanging = true;
 
-			DMFData dmf = (DMFData)songsTreeView.SelectedNode.Tag;
-			RadioButton radio = (RadioButton)sender;
-			for (int i = 0; i < _PCMRates.Length; i++)
-			{
-				if (_PCMRates[i] == radio)
-				{
-					dmf.PCMRate = (ESF_PCMRate)i;
-					break;
-				}
-			}
+		//	DMFData dmf = (DMFData)songsTreeView.SelectedNode.Tag;
+		//	RadioButton radio = (RadioButton)sender;
+		//	for (int i = 0; i < _PCMRates.Length; i++)
+		//	{
+		//		if (_PCMRates[i] == radio)
+		//		{
+		//			dmf.PCMRate = (ESF_PCMRate)i;
+		//			break;
+		//		}
+		//	}
 
-			_isChanging = false;
-		}
+		//	_isChanging = false;
+		//}
 		#endregion
 
 		#region SFXs
@@ -1310,6 +1311,7 @@ namespace DefleMaskConvert
 			importToolStripMenuItem.Enabled = true;
 			exportToolStripMenuItem.Enabled = true;
 			projectPanel.Visible = true;
+			settingsToolStripMenuItem.Enabled = true;
 
 			if (_project.SaveSongs.Count > 0 || _project.SFXs.Count > 0)
 			{
@@ -1373,6 +1375,7 @@ namespace DefleMaskConvert
 			RefreshSFXsView();
 			unsupportedEffects.Visible = false;
 			RefreshExportEchoButtons();
+			RefreshExportChangeBitRate();
 		}
 
 		static private readonly List<string> _usedNames = new List<string>();
@@ -1612,6 +1615,17 @@ namespace DefleMaskConvert
 		private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			new AboutPopUp().ShowDialog();
+		}
+
+		private void exportChangeBitRateToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			_project.ExportChangeBitRateAction = !_project.ExportChangeBitRateAction;
+			RefreshExportChangeBitRate();
+		}
+
+		private void RefreshExportChangeBitRate()
+		{
+			exportChangeBitRateToolStripMenuItem.Checked = _project.ExportChangeBitRateAction;
 		}
 
 	}

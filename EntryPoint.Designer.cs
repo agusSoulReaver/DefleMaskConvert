@@ -47,6 +47,9 @@
 			this.echoStreamFormatESFToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
 			this.toASMProjectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
+			this.settingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.exportChangeBitRateToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.openDefleMaskDialog = new System.Windows.Forms.OpenFileDialog();
@@ -61,20 +64,6 @@
 			this.unsupportedEffects = new System.Windows.Forms.GroupBox();
 			this.unsupportedTreeView = new System.Windows.Forms.TreeView();
 			this.exportParams = new System.Windows.Forms.GroupBox();
-			this.groupBox1 = new System.Windows.Forms.GroupBox();
-			this.btnRateNotChange = new System.Windows.Forms.RadioButton();
-			this.btnRate4097 = new System.Windows.Forms.RadioButton();
-			this.btnRate4439 = new System.Windows.Forms.RadioButton();
-			this.btnRate4842 = new System.Windows.Forms.RadioButton();
-			this.btnRate5326 = new System.Windows.Forms.RadioButton();
-			this.btnRate5918 = new System.Windows.Forms.RadioButton();
-			this.btnRate6658 = new System.Windows.Forms.RadioButton();
-			this.btnRate7609 = new System.Windows.Forms.RadioButton();
-			this.btnRate8877 = new System.Windows.Forms.RadioButton();
-			this.btnRate10653 = new System.Windows.Forms.RadioButton();
-			this.btnRate13316 = new System.Windows.Forms.RadioButton();
-			this.btnRate17755 = new System.Windows.Forms.RadioButton();
-			this.btnRate26632 = new System.Windows.Forms.RadioButton();
 			this.btnLoopWholeTrack = new System.Windows.Forms.CheckBox();
 			this.btnLockChannels = new System.Windows.Forms.CheckBox();
 			this.btnExportChannelPSGNoise = new System.Windows.Forms.CheckBox();
@@ -100,7 +89,6 @@
 			((System.ComponentModel.ISupportInitialize)(this.btnSFXPriority)).BeginInit();
 			this.unsupportedEffects.SuspendLayout();
 			this.exportParams.SuspendLayout();
-			this.groupBox1.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// mainMenuStrip
@@ -122,7 +110,9 @@
             this.saveToolStripMenuItem,
             this.toolStripSeparator1,
             this.importToolStripMenuItem,
-            this.exportToolStripMenuItem});
+            this.exportToolStripMenuItem,
+            this.toolStripSeparator4,
+            this.settingsToolStripMenuItem});
 			this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
 			this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
 			this.fileToolStripMenuItem.Text = "File";
@@ -130,33 +120,33 @@
 			// newToolStripMenuItem
 			// 
 			this.newToolStripMenuItem.Name = "newToolStripMenuItem";
-			this.newToolStripMenuItem.Size = new System.Drawing.Size(119, 22);
+			this.newToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
 			this.newToolStripMenuItem.Text = "New...";
 			this.newToolStripMenuItem.Click += new System.EventHandler(this.newToolStripMenuItem_Click);
 			// 
 			// openToolStripMenuItem
 			// 
 			this.openToolStripMenuItem.Name = "openToolStripMenuItem";
-			this.openToolStripMenuItem.Size = new System.Drawing.Size(119, 22);
+			this.openToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
 			this.openToolStripMenuItem.Text = "Open...";
 			this.openToolStripMenuItem.Click += new System.EventHandler(this.openToolStripMenuItem_Click);
 			// 
 			// saveToolStripMenuItem
 			// 
 			this.saveToolStripMenuItem.Name = "saveToolStripMenuItem";
-			this.saveToolStripMenuItem.Size = new System.Drawing.Size(119, 22);
+			this.saveToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
 			this.saveToolStripMenuItem.Text = "Save";
 			this.saveToolStripMenuItem.Click += new System.EventHandler(this.saveToolStripMenuItem_Click);
 			// 
 			// toolStripSeparator1
 			// 
 			this.toolStripSeparator1.Name = "toolStripSeparator1";
-			this.toolStripSeparator1.Size = new System.Drawing.Size(116, 6);
+			this.toolStripSeparator1.Size = new System.Drawing.Size(149, 6);
 			// 
 			// importToolStripMenuItem
 			// 
 			this.importToolStripMenuItem.Name = "importToolStripMenuItem";
-			this.importToolStripMenuItem.Size = new System.Drawing.Size(119, 22);
+			this.importToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
 			this.importToolStripMenuItem.Text = "Import...";
 			this.importToolStripMenuItem.Click += new System.EventHandler(this.importToolStripMenuItem_Click);
 			// 
@@ -175,7 +165,7 @@
             this.toolStripSeparator3,
             this.toASMProjectToolStripMenuItem});
 			this.exportToolStripMenuItem.Name = "exportToolStripMenuItem";
-			this.exportToolStripMenuItem.Size = new System.Drawing.Size(119, 22);
+			this.exportToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
 			this.exportToolStripMenuItem.Text = "Export";
 			// 
 			// echoInstrumentsASMToolStripMenuItem
@@ -250,6 +240,26 @@
 			this.toASMProjectToolStripMenuItem.Size = new System.Drawing.Size(227, 22);
 			this.toASMProjectToolStripMenuItem.Text = "To ASM Project";
 			this.toASMProjectToolStripMenuItem.Click += new System.EventHandler(this.toASMProjectToolStripMenuItem_Click);
+			// 
+			// toolStripSeparator4
+			// 
+			this.toolStripSeparator4.Name = "toolStripSeparator4";
+			this.toolStripSeparator4.Size = new System.Drawing.Size(149, 6);
+			// 
+			// settingsToolStripMenuItem
+			// 
+			this.settingsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.exportChangeBitRateToolStripMenuItem});
+			this.settingsToolStripMenuItem.Name = "settingsToolStripMenuItem";
+			this.settingsToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+			this.settingsToolStripMenuItem.Text = "Settings";
+			// 
+			// exportChangeBitRateToolStripMenuItem
+			// 
+			this.exportChangeBitRateToolStripMenuItem.Name = "exportChangeBitRateToolStripMenuItem";
+			this.exportChangeBitRateToolStripMenuItem.Size = new System.Drawing.Size(195, 22);
+			this.exportChangeBitRateToolStripMenuItem.Text = "Export Change Bit Rate";
+			this.exportChangeBitRateToolStripMenuItem.Click += new System.EventHandler(this.exportChangeBitRateToolStripMenuItem_Click);
 			// 
 			// helpToolStripMenuItem
 			// 
@@ -403,9 +413,9 @@
 			this.unsupportedEffects.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Right)));
 			this.unsupportedEffects.Controls.Add(this.unsupportedTreeView);
-			this.unsupportedEffects.Location = new System.Drawing.Point(509, 402);
+			this.unsupportedEffects.Location = new System.Drawing.Point(509, 214);
 			this.unsupportedEffects.Name = "unsupportedEffects";
-			this.unsupportedEffects.Size = new System.Drawing.Size(245, 154);
+			this.unsupportedEffects.Size = new System.Drawing.Size(245, 342);
 			this.unsupportedEffects.TabIndex = 24;
 			this.unsupportedEffects.TabStop = false;
 			this.unsupportedEffects.Text = "Unsupported Effects In File";
@@ -417,13 +427,12 @@
             | System.Windows.Forms.AnchorStyles.Right)));
 			this.unsupportedTreeView.Location = new System.Drawing.Point(6, 19);
 			this.unsupportedTreeView.Name = "unsupportedTreeView";
-			this.unsupportedTreeView.Size = new System.Drawing.Size(233, 129);
+			this.unsupportedTreeView.Size = new System.Drawing.Size(233, 317);
 			this.unsupportedTreeView.TabIndex = 0;
 			// 
 			// exportParams
 			// 
 			this.exportParams.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this.exportParams.Controls.Add(this.groupBox1);
 			this.exportParams.Controls.Add(this.btnLoopWholeTrack);
 			this.exportParams.Controls.Add(this.btnLockChannels);
 			this.exportParams.Controls.Add(this.btnExportChannelPSGNoise);
@@ -438,188 +447,10 @@
 			this.exportParams.Controls.Add(this.btnExportChannelFM1);
 			this.exportParams.Location = new System.Drawing.Point(509, 19);
 			this.exportParams.Name = "exportParams";
-			this.exportParams.Size = new System.Drawing.Size(245, 377);
+			this.exportParams.Size = new System.Drawing.Size(245, 189);
 			this.exportParams.TabIndex = 23;
 			this.exportParams.TabStop = false;
 			this.exportParams.Text = "Export Params";
-			// 
-			// groupBox1
-			// 
-			this.groupBox1.Controls.Add(this.btnRateNotChange);
-			this.groupBox1.Controls.Add(this.btnRate4097);
-			this.groupBox1.Controls.Add(this.btnRate4439);
-			this.groupBox1.Controls.Add(this.btnRate4842);
-			this.groupBox1.Controls.Add(this.btnRate5326);
-			this.groupBox1.Controls.Add(this.btnRate5918);
-			this.groupBox1.Controls.Add(this.btnRate6658);
-			this.groupBox1.Controls.Add(this.btnRate7609);
-			this.groupBox1.Controls.Add(this.btnRate8877);
-			this.groupBox1.Controls.Add(this.btnRate10653);
-			this.groupBox1.Controls.Add(this.btnRate13316);
-			this.groupBox1.Controls.Add(this.btnRate17755);
-			this.groupBox1.Controls.Add(this.btnRate26632);
-			this.groupBox1.Location = new System.Drawing.Point(6, 182);
-			this.groupBox1.Name = "groupBox1";
-			this.groupBox1.Size = new System.Drawing.Size(233, 189);
-			this.groupBox1.TabIndex = 12;
-			this.groupBox1.TabStop = false;
-			this.groupBox1.Text = "Playback PCM Rate";
-			// 
-			// btnRateNotChange
-			// 
-			this.btnRateNotChange.AutoSize = true;
-			this.btnRateNotChange.Location = new System.Drawing.Point(106, 135);
-			this.btnRateNotChange.Name = "btnRateNotChange";
-			this.btnRateNotChange.Size = new System.Drawing.Size(90, 17);
-			this.btnRateNotChange.TabIndex = 12;
-			this.btnRateNotChange.TabStop = true;
-			this.btnRateNotChange.Text = "Don\'t Change";
-			this.btnRateNotChange.UseVisualStyleBackColor = true;
-			this.btnRateNotChange.CheckedChanged += new System.EventHandler(this.btnPCMRateCheckedChanged);
-			// 
-			// btnRate4097
-			// 
-			this.btnRate4097.AutoSize = true;
-			this.btnRate4097.Location = new System.Drawing.Point(106, 112);
-			this.btnRate4097.Name = "btnRate4097";
-			this.btnRate4097.Size = new System.Drawing.Size(65, 17);
-			this.btnRate4097.TabIndex = 11;
-			this.btnRate4097.TabStop = true;
-			this.btnRate4097.Text = "4097 Hz";
-			this.btnRate4097.UseVisualStyleBackColor = true;
-			this.btnRate4097.CheckedChanged += new System.EventHandler(this.btnPCMRateCheckedChanged);
-			// 
-			// btnRate4439
-			// 
-			this.btnRate4439.AutoSize = true;
-			this.btnRate4439.Location = new System.Drawing.Point(106, 89);
-			this.btnRate4439.Name = "btnRate4439";
-			this.btnRate4439.Size = new System.Drawing.Size(65, 17);
-			this.btnRate4439.TabIndex = 10;
-			this.btnRate4439.TabStop = true;
-			this.btnRate4439.Text = "4439 Hz";
-			this.btnRate4439.UseVisualStyleBackColor = true;
-			this.btnRate4439.CheckedChanged += new System.EventHandler(this.btnPCMRateCheckedChanged);
-			// 
-			// btnRate4842
-			// 
-			this.btnRate4842.AutoSize = true;
-			this.btnRate4842.Location = new System.Drawing.Point(106, 66);
-			this.btnRate4842.Name = "btnRate4842";
-			this.btnRate4842.Size = new System.Drawing.Size(65, 17);
-			this.btnRate4842.TabIndex = 9;
-			this.btnRate4842.TabStop = true;
-			this.btnRate4842.Text = "4842 Hz";
-			this.btnRate4842.UseVisualStyleBackColor = true;
-			this.btnRate4842.CheckedChanged += new System.EventHandler(this.btnPCMRateCheckedChanged);
-			// 
-			// btnRate5326
-			// 
-			this.btnRate5326.AutoSize = true;
-			this.btnRate5326.Location = new System.Drawing.Point(106, 43);
-			this.btnRate5326.Name = "btnRate5326";
-			this.btnRate5326.Size = new System.Drawing.Size(65, 17);
-			this.btnRate5326.TabIndex = 8;
-			this.btnRate5326.TabStop = true;
-			this.btnRate5326.Text = "5326 Hz";
-			this.btnRate5326.UseVisualStyleBackColor = true;
-			this.btnRate5326.CheckedChanged += new System.EventHandler(this.btnPCMRateCheckedChanged);
-			// 
-			// btnRate5918
-			// 
-			this.btnRate5918.AutoSize = true;
-			this.btnRate5918.Location = new System.Drawing.Point(106, 20);
-			this.btnRate5918.Name = "btnRate5918";
-			this.btnRate5918.Size = new System.Drawing.Size(65, 17);
-			this.btnRate5918.TabIndex = 7;
-			this.btnRate5918.TabStop = true;
-			this.btnRate5918.Text = "5918 Hz";
-			this.btnRate5918.UseVisualStyleBackColor = true;
-			this.btnRate5918.CheckedChanged += new System.EventHandler(this.btnPCMRateCheckedChanged);
-			// 
-			// btnRate6658
-			// 
-			this.btnRate6658.AutoSize = true;
-			this.btnRate6658.Location = new System.Drawing.Point(8, 158);
-			this.btnRate6658.Name = "btnRate6658";
-			this.btnRate6658.Size = new System.Drawing.Size(65, 17);
-			this.btnRate6658.TabIndex = 6;
-			this.btnRate6658.TabStop = true;
-			this.btnRate6658.Text = "6658 Hz";
-			this.btnRate6658.UseVisualStyleBackColor = true;
-			this.btnRate6658.CheckedChanged += new System.EventHandler(this.btnPCMRateCheckedChanged);
-			// 
-			// btnRate7609
-			// 
-			this.btnRate7609.AutoSize = true;
-			this.btnRate7609.Location = new System.Drawing.Point(8, 135);
-			this.btnRate7609.Name = "btnRate7609";
-			this.btnRate7609.Size = new System.Drawing.Size(65, 17);
-			this.btnRate7609.TabIndex = 5;
-			this.btnRate7609.TabStop = true;
-			this.btnRate7609.Text = "7609 Hz";
-			this.btnRate7609.UseVisualStyleBackColor = true;
-			this.btnRate7609.CheckedChanged += new System.EventHandler(this.btnPCMRateCheckedChanged);
-			// 
-			// btnRate8877
-			// 
-			this.btnRate8877.AutoSize = true;
-			this.btnRate8877.Location = new System.Drawing.Point(7, 112);
-			this.btnRate8877.Name = "btnRate8877";
-			this.btnRate8877.Size = new System.Drawing.Size(65, 17);
-			this.btnRate8877.TabIndex = 4;
-			this.btnRate8877.TabStop = true;
-			this.btnRate8877.Text = "8877 Hz";
-			this.btnRate8877.UseVisualStyleBackColor = true;
-			this.btnRate8877.CheckedChanged += new System.EventHandler(this.btnPCMRateCheckedChanged);
-			// 
-			// btnRate10653
-			// 
-			this.btnRate10653.AutoSize = true;
-			this.btnRate10653.Location = new System.Drawing.Point(7, 89);
-			this.btnRate10653.Name = "btnRate10653";
-			this.btnRate10653.Size = new System.Drawing.Size(71, 17);
-			this.btnRate10653.TabIndex = 3;
-			this.btnRate10653.TabStop = true;
-			this.btnRate10653.Text = "10653 Hz";
-			this.btnRate10653.UseVisualStyleBackColor = true;
-			this.btnRate10653.CheckedChanged += new System.EventHandler(this.btnPCMRateCheckedChanged);
-			// 
-			// btnRate13316
-			// 
-			this.btnRate13316.AutoSize = true;
-			this.btnRate13316.Location = new System.Drawing.Point(7, 66);
-			this.btnRate13316.Name = "btnRate13316";
-			this.btnRate13316.Size = new System.Drawing.Size(71, 17);
-			this.btnRate13316.TabIndex = 2;
-			this.btnRate13316.TabStop = true;
-			this.btnRate13316.Text = "13316 Hz";
-			this.btnRate13316.UseVisualStyleBackColor = true;
-			this.btnRate13316.CheckedChanged += new System.EventHandler(this.btnPCMRateCheckedChanged);
-			// 
-			// btnRate17755
-			// 
-			this.btnRate17755.AutoSize = true;
-			this.btnRate17755.Location = new System.Drawing.Point(7, 43);
-			this.btnRate17755.Name = "btnRate17755";
-			this.btnRate17755.Size = new System.Drawing.Size(71, 17);
-			this.btnRate17755.TabIndex = 1;
-			this.btnRate17755.TabStop = true;
-			this.btnRate17755.Text = "17755 Hz";
-			this.btnRate17755.UseVisualStyleBackColor = true;
-			this.btnRate17755.CheckedChanged += new System.EventHandler(this.btnPCMRateCheckedChanged);
-			// 
-			// btnRate26632
-			// 
-			this.btnRate26632.AutoSize = true;
-			this.btnRate26632.Location = new System.Drawing.Point(7, 20);
-			this.btnRate26632.Name = "btnRate26632";
-			this.btnRate26632.Size = new System.Drawing.Size(71, 17);
-			this.btnRate26632.TabIndex = 0;
-			this.btnRate26632.TabStop = true;
-			this.btnRate26632.Text = "26632 Hz";
-			this.btnRate26632.UseVisualStyleBackColor = true;
-			this.btnRate26632.CheckedChanged += new System.EventHandler(this.btnPCMRateCheckedChanged);
 			// 
 			// btnLoopWholeTrack
 			// 
@@ -798,8 +629,6 @@
 			this.unsupportedEffects.ResumeLayout(false);
 			this.exportParams.ResumeLayout(false);
 			this.exportParams.PerformLayout();
-			this.groupBox1.ResumeLayout(false);
-			this.groupBox1.PerformLayout();
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
@@ -830,20 +659,6 @@
 		private System.Windows.Forms.CheckBox btnExportChannelFM1;
 		private System.Windows.Forms.CheckBox btnLockChannels;
 		private System.Windows.Forms.CheckBox btnLoopWholeTrack;
-		private System.Windows.Forms.GroupBox groupBox1;
-		private System.Windows.Forms.RadioButton btnRate26632;
-		private System.Windows.Forms.RadioButton btnRateNotChange;
-		private System.Windows.Forms.RadioButton btnRate4097;
-		private System.Windows.Forms.RadioButton btnRate4439;
-		private System.Windows.Forms.RadioButton btnRate4842;
-		private System.Windows.Forms.RadioButton btnRate5326;
-		private System.Windows.Forms.RadioButton btnRate5918;
-		private System.Windows.Forms.RadioButton btnRate6658;
-		private System.Windows.Forms.RadioButton btnRate7609;
-		private System.Windows.Forms.RadioButton btnRate8877;
-		private System.Windows.Forms.RadioButton btnRate10653;
-		private System.Windows.Forms.RadioButton btnRate13316;
-		private System.Windows.Forms.RadioButton btnRate17755;
 		private System.Windows.Forms.GroupBox unsupportedEffects;
 		private System.Windows.Forms.TreeView unsupportedTreeView;
 		private System.Windows.Forms.ToolStripMenuItem newToolStripMenuItem;
@@ -871,6 +686,9 @@
 		private System.Windows.Forms.ToolStripMenuItem echoSFXsPrioritiesASMToolStripMenuItem;
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
 		private System.Windows.Forms.ToolStripMenuItem toASMProjectToolStripMenuItem;
+		private System.Windows.Forms.ToolStripSeparator toolStripSeparator4;
+		private System.Windows.Forms.ToolStripMenuItem settingsToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem exportChangeBitRateToolStripMenuItem;
 	}
 }
 

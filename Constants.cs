@@ -80,6 +80,8 @@ namespace DefleMaskConvert
 		NoteDelay					= 0xed,	// Note delay
 		Jump						= 0x0b, // Position jump
 		Break						= 0x0d, // Pattern break
+
+		ChangeBitRate = 0xff, // Pattern break
 	};
 
 	public enum UnsupportedEffect

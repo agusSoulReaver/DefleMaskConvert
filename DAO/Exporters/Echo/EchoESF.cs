@@ -10,6 +10,7 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 	public class EchoESF
 	{
 		public string ExportName;
+		public ESF_PCMRate BitRate = ESF_PCMRate.NotChange;
 
 		public readonly List<IEchoEvent> Header = new List<IEchoEvent>();
 		public readonly List<EchoPatternPage> Pages = new List<EchoPatternPage>();

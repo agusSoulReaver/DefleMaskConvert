@@ -35,6 +35,9 @@ namespace DefleMaskConvert.DAO
 		[XmlIgnore]
 		public List<DMFData> Songs = new List<DMFData>();
 
+		[XmlAttribute]
+		public bool ExportChangeBitRateAction = false;
+
 		public void PrepareToSave()
 		{
 			SaveSongs.Clear();

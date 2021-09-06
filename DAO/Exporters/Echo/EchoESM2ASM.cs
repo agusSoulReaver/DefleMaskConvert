@@ -28,7 +28,7 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 			Write(data);
 		}
 
-		private EchoESM2ASM(TextWriter stream, List<EchoESF> list)
+		private EchoESM2ASM(TextWriter stream, List<EchoESF> list, bool exportChangeBitRate)
 			: this(stream)
 		{
 			_writer.Comment(string.Format("Size: {0} bytes", CalculateSize(list)));
@@ -42,6 +42,7 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 			{
 				_writer.NewLine();
 				_writer.Label(data.ExportName);
+				if (exportChangeBitRate && data.BitRate != ESF_PCMRate.NotChange) WriteChangeBitRate(data.BitRate);
 				Write(data);
 			}
 		}
@@ -107,6 +108,17 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 				_writer.NewLine();
 		}
 
+		private void WriteChangeBitRate(ESF_PCMRate data)
+		{
+			_writer.DefineConstantHeader(Moto68KWriter.Sizes.Byte);
+			_writer.Number((byte)0x00, Moto68KWriter.Formats.Hexa);
+			_writer.Text(",");
+			_writer.Number((byte)data, Moto68KWriter.Formats.Hexa);
+			_writer.Tab();
+			_writer.Tab();
+			_writer.Comment(string.Format("Change BitRate to {0}", data));
+		}
+
 		private int CalculateSize(List<EchoESF> list)
 		{
 			int size = 0;
@@ -158,14 +170,14 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 			}
 		}
 
-		static public void SaveFile(string path, List<EchoESF> data)
+		static public void SaveFile(string path, List<EchoESF> data, bool exportChangeBitRate)
 		{
 			File.WriteAllLines(path, new string[] { string.Empty });
 
 			using (FileStream file = File.OpenWrite(path))
 			{
 				TextWriter stream = new StreamWriter(file, Encoding.ASCII);
-				new EchoESM2ASM(stream, data);
+				new EchoESM2ASM(stream, data, exportChangeBitRate);
 
 				stream.Flush();
 				stream.Close();

@@ -42,6 +42,7 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 			PSGNoiseFreq = PSGWhiteNoise = true;
 
 			EchoESF esf = new EchoESF();
+			esf.BitRate = data.PCMRate;
 			TickBase = data.TimeBase;
 			TickTimeEvenRow = data.TickTimeEven;
 			TickTimeOddRow = data.TickTimeOdd;
@@ -703,6 +704,11 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 							NextPattern = 0;
 
 						_nextRow = effectParam;
+						break;
+
+					case EffectType.ChangeBitRate:
+						if (data.PCMRate == ESF_PCMRate.NotChange)
+							data.PCMRate = (ESF_PCMRate)effectParam;
 						break;
 						/* Unknown/unsupported effects */
 					default:
@@ -1423,7 +1429,6 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 
 		static private void SetHeader(DMFData data, EchoESF output)
 		{
-			if (data.PCMRate != ESF_PCMRate.NotChange) SetPCMRateEvent(data.PCMRate, output.Header);
 			if (data.LockChannels) LockChannels(data, output);
 			if (data.LoopWholeTrack) SetLoopEvent(output.Header);
 		}
