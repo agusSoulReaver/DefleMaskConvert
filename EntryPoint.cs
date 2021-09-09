@@ -774,6 +774,11 @@ namespace DefleMaskConvert
 
 				ShowErrorMessage(_message.ToString());
 			}
+			else
+			{
+				SystemSounds.Hand.Play();
+				MessageBox.Show("Export Completed!", "ASM Project", MessageBoxButtons.OK);
+			}
 		}
 		#endregion
 
