@@ -1082,23 +1082,27 @@ namespace DefleMaskConvert
 				{
 					index1 = nodes.IndexOf(dragged);
 					index2 = nodes.IndexOf(_overNode);
-
-					SwapItems(index1, index2);
 				}
+				else
+					return;
 			}
 			else
 			{
 				index1 = nodes.IndexOf(dragged);
-				index2 = nodes.Count - 1;
-				SwapItems(index1, index2);
+				index2 = nodes.Count;
 			}
+
+			if(index1 != index2)
+				MoveItems(index1, index2);
 		}
 
-		private void SwapItems(int index1, int index2)
+		private void MoveItems(int index1, int index2)
 		{
 			var temp = _project.Songs[index1];
-			_project.Songs[index1] = _project.Songs[index2];
-			_project.Songs[index2] = temp;
+			_project.Songs.RemoveAt(index1);
+
+			if (index1 < index2) index2--;
+			_project.Songs.Insert(index2, temp);
 
 			RefreshDetailsView();
 			unsupportedEffects.Visible = false;
