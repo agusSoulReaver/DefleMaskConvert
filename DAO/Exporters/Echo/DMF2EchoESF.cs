@@ -1535,7 +1535,7 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 		static private void SetHeader(DMFData data, EchoESF output)
 		{
 			if (data.LockChannels) LockChannels(data, output);
-			if (data.LoopWholeTrack) SetLoopEvent(output.Header);
+			if (!data.IsLoopJumpSet() && data.LoopWholeTrack) SetLoopEvent(output.Header);
 		}
 
 		static private void LockChannels(DMFData data, EchoESF output)
