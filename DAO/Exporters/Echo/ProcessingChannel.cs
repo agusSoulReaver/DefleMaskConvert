@@ -37,7 +37,9 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 		public byte NewOctave = 0;
 		public byte EffectNote = 0;
 		public byte EffectOctave = 0;
+		public byte EffectPrevOctave = 0;
 		public int EffectSemitone = 0;
+		public int EffectPrevSemitone = 0;
 		public ushort LastFreq = 0; // difference
 		public ushort NewFreq = 0;  // difference
 		public byte Instrument = 0xFF;
@@ -116,9 +118,9 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 		//4xx (vibrato)
 		public EffectMode mode;
 		public EffectStage stage;
-		public byte sineSpeed;
-		public byte sineAmplitude;
-		public uint sineTime;
+		public float sineSpeed;
+		public float amplitudeRatio;
+		public float sineTime;
 	};
 
 	// 5xx, 6xx ignored

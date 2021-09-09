@@ -406,7 +406,10 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 				//Turn off effects which stop at note off
 				//channel.m_effectPortaNote.PortaNote = EffectMode.Off;
 				//channel.m_effectPortmento.Porta = EffectMode.Off;
-				//channel.m_effectVibrato.mode = EffectMode.Off;
+
+				channel.m_effectVibrato.mode = EffectMode.Off;
+				channel.m_effectVibrato.stage = EffectStage.End;
+
 				channel.m_effectVolSlide.VolSlide = EffectMode.Off;
 				channel.m_effectPSGNoise.Mode = EffectMode.Off;
 				channel.m_effectPSGNoise.EnvelopeSize = 0;
@@ -446,6 +449,9 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 				{
 					channel.EffectSemitone = FMFreqs[channel.EffectNote];
 				}
+
+				channel.EffectPrevSemitone = channel.EffectSemitone;
+				channel.EffectPrevOctave = channel.EffectOctave;
 
 				//Turn off effects which stop at next note
 				channel.m_effectPortaNote.PortaNote = EffectMode.Off;
@@ -589,13 +595,13 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 
 					case EffectType.Vibrato:
 					{
-						byte speed = (byte)(effectParam >> 4);
-						byte amplitude = (byte)(effectParam & 0xF);
+						float speed = (byte)(effectParam >> 4);
+						float amplitudeRatio = (byte)(effectParam & 0xF);
 
-						speed = (byte)Clamp(speed, (byte)1, (byte)15);
-						amplitude = (byte)Clamp(amplitude, (byte)0, (byte)12);
+						speed = (float)Clamp((int)speed, 1, 15);
+						amplitudeRatio = Clamp((int)amplitudeRatio, 0, 15) / 15f;
 
-						if(speed == 0 || amplitude == 0)
+						if(speed == 0 || amplitudeRatio == 0)
 						{
 							if(channel.m_effectVibrato.stage == EffectStage.Continue)
 							{
@@ -616,8 +622,15 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 							}
 
 							channel.m_effectVibrato.sineSpeed = speed;
-							channel.m_effectVibrato.sineAmplitude = amplitude;
+							channel.m_effectVibrato.amplitudeRatio = amplitudeRatio;
 						}
+
+						//Cancel Portamento
+						channel.m_effectPortmento.Porta = EffectMode.Off;
+						channel.m_effectPortmento.Stage = EffectStage.Off;
+						//Cancel PortaNote
+						channel.m_effectPortaNote.PortaNote = EffectMode.Off;
+						channel.m_effectPortaNote.Stage = EffectStage.Off;
 						break;
 					}
 					case EffectType.PortmentoUp: // Portamento up
@@ -642,11 +655,14 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 
 								channel.m_effectPortmento.Porta = effectType == EffectType.PortmentoUp ? EffectMode.Up : EffectMode.Down;
 								channel.m_effectPortmento.PortaSpeed = (byte)Clamp(effectParam, (byte)0, (byte)0x7F);
-
-								//Cancel vibrato
-								//channel.m_effectVibrato.mode = EffectMode.OFF;
-								//channel.m_effectVibrato.stage = EffectStage.OFF;
 							}
+
+							//Cancel vibrato
+							channel.m_effectVibrato.mode = EffectMode.Off;
+							channel.m_effectVibrato.stage = EffectStage.Off;
+							//Cancel PortaNote
+							channel.m_effectPortaNote.PortaNote = EffectMode.Off;
+							channel.m_effectPortaNote.Stage = EffectStage.Off;
 						}
 						break;
 					case EffectType.PortmentoToNote: // Tone portamento
@@ -664,6 +680,7 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 							byte note = psg4.m_effectPortaNote.PortaNoteCurrentNote;
 							channel.EffectSemitone = PSGFreqs[note][octave];
 							channel.EffectOctave = octave;
+							channel.EffectPrevOctave = channel.EffectOctave;
 						}
 						else if (channel.Id >= ChannelId.PSG1)
 						{
@@ -673,12 +690,20 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 						{
 							channel.EffectSemitone = FMFreqs[channel.m_effectPortaNote.PortaNoteCurrentNote];
 						}
+						channel.EffectPrevSemitone = channel.EffectSemitone;
 
 						bool isOctaveUp = (sbyte)channel.m_effectPortaNote.PortaNoteTargetOctave - (sbyte)channel.m_effectPortaNote.PortaNoteCurrentOctave > 0;
 						bool isSameOctave = (sbyte)channel.m_effectPortaNote.PortaNoteTargetOctave - (sbyte)channel.m_effectPortaNote.PortaNoteCurrentOctave == 0;
 						bool isNoteUp = (sbyte)channel.m_effectPortaNote.PortaNoteTargetNote - (sbyte)channel.m_effectPortaNote.PortaNoteCurrentNote >= 0;
 						channel.m_effectPortaNote.PortaNote = isOctaveUp || (isSameOctave && isNoteUp) ? EffectMode.Up : EffectMode.Down;
 						channel.m_effectPortaNote.Stage = EffectStage.Initialise;
+
+						//Cancel vibrato
+						channel.m_effectVibrato.mode = EffectMode.Off;
+						channel.m_effectVibrato.stage = EffectStage.Off;
+						//Cancel Portamento
+						channel.m_effectPortmento.Porta = EffectMode.Off;
+						channel.m_effectPortmento.Stage = EffectStage.Off;
 						break;
 
 					case EffectType.SetSpeed1: // Set speed 1
@@ -1008,6 +1033,7 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 					{
 						channel.m_effectPortaNote.PortaNoteCurrentOctave = targetOctave;
 						channel.EffectSemitone = FMFreqs[targetNote];
+						channel.EffectPrevSemitone = channel.EffectSemitone;
 						completed = true;
 					}
 				}
@@ -1021,6 +1047,7 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 					{
 						channel.m_effectPortaNote.PortaNoteCurrentOctave = targetOctave;
 						channel.EffectSemitone = frequency;
+						channel.EffectPrevSemitone = channel.EffectSemitone;
 						completed = true;
 					}
 				}
@@ -1072,35 +1099,30 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 				}
 				else
 				{
-					float sine = (float)(Math.Sin((float)channel.m_effectVibrato.sineTime / 10.0f));
+					float sine = (float)(Math.Sin(channel.m_effectVibrato.sineTime * 2 * channel.m_effectVibrato.sineSpeed * Math.PI))*channel.m_effectVibrato.amplitudeRatio;
 
-					if (channel.Id < ChannelId.PSG1)
-					{
-						sine *= 2f;
-					}
+					channel.m_effectVibrato.sineTime += 1/60f;
 
-					short pitchOffset = (short)(sine * (float)channel.m_effectVibrato.sineAmplitude);
-
-					channel.m_effectVibrato.sineTime += channel.m_effectVibrato.sineSpeed;
-
-					byte prevOctave = channel.EffectOctave;
-					uint prevSemitone = (uint)channel.EffectSemitone;
+					byte prevOctave = channel.EffectPrevOctave;
 					byte newOctave = channel.EffectOctave;
 					int newSemitone = channel.EffectSemitone;
 
 					if(channel.Id < ChannelId.PSG1)
 					{
-						SlideFM(ref newOctave, ref newSemitone, pitchOffset);
+						//newSemitone = FMFreqs[channel.EffectNote];
+						VibratoFM(ref newOctave, ref newSemitone, channel.EffectNote, sine);
 					}
 					else
 					{
-						SlidePSG(ref newOctave, ref newSemitone, pitchOffset);
+						//newSemitone = PSGFreqs[channel.EffectNote][prevOctave];
+						VibratoPSG(ref newOctave, ref newSemitone, channel.EffectNote, sine);
 					}
 
-					if(newOctave != prevOctave || newSemitone != prevSemitone)
+					if (newOctave != prevOctave || newSemitone != channel.EffectPrevSemitone)
 					{
 						//Set frequency
 						channel.Octave = newOctave;
+						channel.EffectPrevOctave = newOctave;
 						var chan = channel.Id;
 
 						//If PSG4 in noise mode, set on PSG3 instead
@@ -1113,6 +1135,7 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 					}
 
 					channel.m_effectVibrato.stage = EffectStage.Continue;
+					channel.EffectPrevSemitone = newSemitone;
 				}
 			
 				numEffectsProcess++;
@@ -1129,6 +1152,88 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 			}
 
 			return numEffectsProcess;
+		}
+
+		static private void VibratoFM(ref byte octave, ref int semitone, byte note, float sine)
+		{
+			float current = semitone;
+			float nextSemitone = semitone;
+
+			if (sine > 0)
+			{
+				if (note >= MaxFMSlideFreqs-1)
+				{
+					octave++;
+					current = FMSlideFreqs[MaxFMSlideFreqs - 2];
+					nextSemitone = FMSlideFreqs[MaxFMSlideFreqs - 1];
+				}
+				else
+					nextSemitone = FMSlideFreqs[note + 1];
+			}
+			else if (sine < 0)
+			{
+				sine = -sine;
+				if (note <= 0)
+				{
+					octave--;
+					current = FMSlideFreqs[MaxFMSlideFreqs - 1];
+					nextSemitone = FMSlideFreqs[MaxFMSlideFreqs - 2];
+				}
+				else
+					nextSemitone = FMFreqs[note - 1];
+			}
+			else
+				return;
+
+			semitone = (int)(current + (nextSemitone - current)*sine);
+
+			//Clamp to max octave+freq
+			if (octave == MaxOctave && semitone > FMFreqs[MaxFMFreqs - 1])
+				semitone = FMFreqs[MaxFMFreqs - 1];
+			else
+			//Clamp to min octave+freq
+			if (octave == 0 && semitone < FMFreqs[0])
+			{
+				semitone = FMFreqs[0];
+			}
+		}
+
+		static private void VibratoPSG(ref byte octave, ref int semitone, byte note, float sine)
+		{
+			float current = semitone;
+			float nextSemitone = semitone;
+
+			if (sine > 0)
+			{
+				if (note >= MaxPSGFreqs - 1)
+				{
+					if (octave < MaxOctave) octave++;
+					nextSemitone = PSGFreqs[0][octave];
+				}
+				else
+					nextSemitone = PSGFreqs[note + 1][octave];
+			}
+			else if (sine < 0)
+			{
+				sine = -sine;
+				if (note <= 0)
+				{
+					if (octave > 0) octave--;
+					nextSemitone = PSGFreqs[MaxPSGFreqs-1][octave];
+				}
+				else
+					nextSemitone = PSGFreqs[note - 1][octave];
+			}
+			else
+				return;
+
+			semitone = (int)(current + (nextSemitone - current) * sine);
+
+			if (semitone < PSGFreqs[MaxPSGFreqs - 1][MaxOctave])
+				semitone = PSGFreqs[MaxPSGFreqs - 1][MaxOctave];
+			else
+			if (semitone > PSGFreqs[0][0])
+				semitone = PSGFreqs[0][0];
 		}
 
 		static private void SetFrequency(ChannelId chan, ushort FMSemitone, EchoPatternRow patternRow, bool processDelay)
@@ -1596,18 +1701,18 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 		static private readonly ushort[][] PSGFreqs = new ushort[][] // [semitone][octave]
 		{
 						// 0   1   2   3   4   5,  6,  7,  8
-			new ushort[]{ 851,851,425,212,106, 53, 26, 13, 1 }, // c
-			new ushort[]{ 851,803,401,200,100, 50, 25, 12, 0 }, // c#
-			new ushort[]{ 851,758,379,189, 94, 47, 23, 11, 0 }, // d
-			new ushort[]{ 851,715,357,178, 89, 44, 22, 10, 0 }, // d#
-			new ushort[]{ 851,675,337,168, 84, 42, 21, 9,  0 }, // e
-			new ushort[]{ 851,637,318,159, 79, 39, 19, 8,  0 }, // f
-			new ushort[]{ 851,601,300,150, 75, 37, 18, 7,  0 }, // f#
-			new ushort[]{ 851,568,284,142, 71, 31, 15, 6,  0 }, // g
-			new ushort[]{ 851,536,268,134, 67, 33, 16, 5,  0 }, // g#
-			new ushort[]{ 851,506,253,126, 63, 31, 15, 4,  0 }, // a
-			new ushort[]{ 851,477,238,119, 59, 29, 14, 3,  0 }, // a#
-			new ushort[]{ 851,450,225,112, 56, 28, 14, 2,  0 }, // b
+			new ushort[]{ 1702,851,425,212,106, 53, 26, 13, 1 }, // c
+			new ushort[]{ 1606,803,401,200,100, 50, 25, 12, 0 }, // c#
+			new ushort[]{ 1516,758,379,189, 94, 47, 23, 11, 0 }, // d
+			new ushort[]{ 1430,715,357,178, 89, 44, 22, 10, 0 }, // d#
+			new ushort[]{ 1350,675,337,168, 84, 42, 21, 9,  0 }, // e
+			new ushort[]{ 1274,637,318,159, 79, 39, 19, 8,  0 }, // f
+			new ushort[]{ 1202,601,300,150, 75, 37, 18, 7,  0 }, // f#
+			new ushort[]{ 1136,568,284,142, 71, 31, 15, 6,  0 }, // g
+			new ushort[]{ 1072,536,268,134, 67, 33, 16, 5,  0 }, // g#
+			new ushort[]{ 1012,506,253,126, 63, 31, 15, 4,  0 }, // a
+			new ushort[]{  954,477,238,119, 59, 29, 14, 3,  0 }, // a#
+			new ushort[]{  900,450,225,112, 56, 28, 14, 2,  0 }, // b
 		};
 
 		static private readonly ushort[] FMFreqs = new ushort[]
