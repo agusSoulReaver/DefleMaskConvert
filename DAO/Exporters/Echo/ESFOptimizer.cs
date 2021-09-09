@@ -67,7 +67,10 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 					}
 
 					if (_indexes.Count <= 0) continue;
-					TryDistributeEvents(data, row.Events, pageIndex, rowIndex);
+
+					int pageLimit = startLoopPage != null ? startLoopPage.Index : 0;
+					if (pageIndex < pageLimit) pageLimit = pageIndex;
+					TryDistributeEvents(data, row.Events, pageIndex, rowIndex, pageLimit);
 				}
 			}
 
@@ -75,7 +78,7 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 				TryDistributeLoopEvents(data, loopEvents);
 		}
 
-		static private void TryDistributeEvents(EchoESF data, List<IEchoEvent> events, int startPage, int startRow)
+		static private void TryDistributeEvents(EchoESF data, List<IEchoEvent> events, int startPage, int startRow, int loopPageIndex)
 		{
 			EchoPatternPage page;
 			EchoPatternRow row;
@@ -93,7 +96,7 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 					SetInstrumentEvent setInstrument = (SetInstrumentEvent)events[index];
 					_indexes.RemoveAt(i);
 
-					for (int pageIndex = startPage + 1; --pageIndex >= 0 && !completed; )
+					for (int pageIndex = startPage + 1; --pageIndex >= loopPageIndex && !completed; )
 					{
 						page = data.Pages[pageIndex];
 
@@ -109,9 +112,7 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 									{
 										events.RemoveAt(index);
 										saveEvents.Insert(saveIndex, setInstrument);
-										SetVolumeEvent setVolume;
-										if (TryExtractSetVolume<IEchoEvent>(setInstrument.Channel, ref events, out setVolume))
-											saveEvents.Insert(saveIndex + 1, setVolume);
+										TryExtractAttributes<IEchoEvent>(saveEvents, saveIndex, setInstrument.Channel, ref events);
 									}
 									completed = true;
 								}
@@ -128,14 +129,12 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 
 						if (!completed)
 						{
-							saveEvents = GetFreeSpace(data.Pages, startPage, startRow, 0, 0, out saveIndex);
+							saveEvents = GetFreeSpace(data.Pages, startPage, startRow, loopPageIndex, 0, out saveIndex);
 							if (saveEvents != null)
 							{
 								events.RemoveAt(index);
 								saveEvents.Insert(saveIndex, setInstrument);
-								SetVolumeEvent setVolume;
-								if (TryExtractSetVolume<IEchoEvent>(setInstrument.Channel, ref events, out setVolume))
-									saveEvents.Insert(saveIndex + 1, setVolume);
+								TryExtractAttributes<IEchoEvent>(saveEvents, saveIndex, setInstrument.Channel, ref events);
 							}
 						}
 					}
@@ -246,9 +245,7 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 										}
 
 										saveEvents.Insert(saveIndex, setInstrument);
-										SetVolumeEvent setVolume;
-										if (TryExtractSetVolume<IEchoChannelEvent>(setInstrument.Channel, ref loopEvents, out setVolume))
-											saveEvents.Insert(saveIndex + 1, setVolume);
+										TryExtractAttributes<IEchoChannelEvent>(saveEvents, saveIndex, setInstrument.Channel, ref loopEvents);
 									}
 									completed = true;
 								}
@@ -378,6 +375,18 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 			return 0;
 		}
 
+		static private void TryExtractAttributes<T>(List<IEchoEvent> saveEvents, int saveIndex, ESFChannel channel, ref List<T> events)
+			where T:IEchoEvent
+		{
+			//SetFMParametersEvent setFMParams;
+			//if (TryExtractSetFMParameters<T>(channel, ref events, out setFMParams))
+			//	saveEvents.Insert(saveIndex + 1, setFMParams);
+
+			SetVolumeEvent setVolume;
+			if (TryExtractSetVolume<T>(channel, ref events, out setVolume))
+				saveEvents.Insert(saveIndex + 1, setVolume);
+		}
+
 		static private bool TryExtractSetVolume<T>(ESFChannel channel, ref List<T> events, out SetVolumeEvent setVolume)
 			where T:IEchoEvent
 		{
@@ -388,6 +397,28 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 				if (events[i] is SetVolumeEvent)
 				{
 					var other = (SetVolumeEvent)((object)events[i]);
+					if (other.Channel == channel)
+					{
+						events.RemoveAt(i);
+						setVolume = other;
+						return true;
+					}
+				}
+			}
+
+			return false;
+		}
+
+		static private bool TryExtractSetFMParameters<T>(ESFChannel channel, ref List<T> events, out SetFMParametersEvent setVolume)
+			where T : IEchoEvent
+		{
+			setVolume = default(SetFMParametersEvent);
+
+			for (int i = events.Count; --i >= 0; )
+			{
+				if (events[i] is SetFMParametersEvent)
+				{
+					var other = (SetFMParametersEvent)((object)events[i]);
 					if (other.Channel == channel)
 					{
 						events.RemoveAt(i);
