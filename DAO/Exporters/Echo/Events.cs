@@ -25,13 +25,15 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 		public ESFChannel Channel { get; private set; }
 		public readonly byte Note, Octave;
 		private readonly byte _data;
+		public readonly byte InstrumentIndex;
 
-		public NoteOnEvent(ESFChannel channel, ChannelType channelType, byte note, byte octave)
+		public NoteOnEvent(ESFChannel channel, ChannelType channelType, byte note, byte octave, byte instrumentIndex)
 			: this()
 		{
 			Channel = channel;
 			Note = note;
 			Octave = octave;
+			InstrumentIndex = instrumentIndex;
 
 			byte data;
 			switch (channelType)

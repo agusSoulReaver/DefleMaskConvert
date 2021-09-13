@@ -105,7 +105,8 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 							row = page.Rows[rowIndex];
 							for (int eventIndex = row.Events.Count; --eventIndex >= 0 && !completed; )
 							{
-								if (setInstrument.IsSameKind(row.Events[eventIndex]))
+								var eventData = row.Events[eventIndex];
+								if (setInstrument.IsSameKind(eventData))
 								{
 									saveEvents = FindFreeSpace(data.Pages, setInstrument, pageIndex, rowIndex, startPage, startRow, out saveIndex, true);
 									if (saveEvents != null)
@@ -115,6 +116,12 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 										TryExtractAttributes<IEchoEvent>(saveEvents, saveIndex, setInstrument.Channel, ref events);
 									}
 									completed = true;
+								}
+								else if(eventData is NoteOnEvent)
+								{
+									var noteOn = (NoteOnEvent)eventData;
+									if (noteOn.Channel != ESFChannel.DAC && noteOn.Channel == setInstrument.Channel && noteOn.InstrumentIndex != setInstrument.InstrumentIndex)
+										completed = true;
 								}
 							}
 						}
@@ -437,7 +444,8 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 			_indexes.Clear();
 			for (int i = 0; i < events.Count; i++)
 			{
-				if (events[i] is IEchoChannelEvent)
+				var e = events[i];
+				if (e is IEchoChannelEvent)
 					_indexes.Add(i);
 			}
 		}

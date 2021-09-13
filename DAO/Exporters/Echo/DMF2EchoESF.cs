@@ -804,7 +804,8 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 					}
 				}
 
-				NoteOnEvent(channel.ESFId, NoiseMode, 0, patternRow, processDelay);
+				byte instrumentIdx = (byte)activeInstruments.IndexOf(data.Instruments[channel.Instrument]);
+				NoteOnEvent(channel.ESFId, NoiseMode, 0, instrumentIdx, patternRow, processDelay);
 			}
 
 			/* Skip if this is the PSG3 channel and its frequency value is already used for the noise channel */
@@ -870,11 +871,12 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 					//SetPCMRateEvent(PCM_FREQ_DEFAULT, patternRow);
 
 					//PCM note on
-					NoteOnEvent(ESFChannel.DAC, sampleInstrumentIdx, 0, patternRow, processDelay);
+					NoteOnEvent(ESFChannel.DAC, sampleInstrumentIdx, 0, 0, patternRow, processDelay);
 				}
 				else
 				{
-					NoteOnEvent(channel.ESFId, channel.Note, channel.Octave, patternRow, processDelay);
+					byte instrumentIdx = channel.Instrument != 0xFF ? (byte)activeInstruments.IndexOf(data.Instruments[channel.Instrument]) : (byte)0;
+					NoteOnEvent(channel.ESFId, channel.Note, channel.Octave, instrumentIdx, patternRow, processDelay);
 					if (channel.FineTune.Mode != EffectMode.Off)
 					{
 						channel.Octave = channel.FineTune.NoteOctave;
@@ -1441,10 +1443,10 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 			patternRow.Events.Add(new SetFrequencyEvent(channel, freq));
 		}
 
-		static private void NoteOnEvent(ESFChannel channel, byte note, byte octave, EchoPatternRow patternRow, bool processDelay)
+		static private void NoteOnEvent(ESFChannel channel, byte note, byte octave, byte instrumentIndex, EchoPatternRow patternRow, bool processDelay)
 		{
 			if(processDelay) WaitEvent(patternRow.Events);
-			patternRow.Events.Add(new NoteOnEvent(channel, ESF_CHANNEL_TYPES[(int)channel], note, octave));
+			patternRow.Events.Add(new NoteOnEvent(channel, ESF_CHANNEL_TYPES[(int)channel], note, octave, instrumentIndex));
 		}
 
 		static private void NoteOffEvent(ESFChannel channel, EchoPatternRow patternRow)
