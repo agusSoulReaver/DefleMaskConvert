@@ -238,6 +238,45 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 		{
 			return other is SetFrequencyEvent && ((SetFrequencyEvent)other).Channel == this.Channel;
 		}
+
+	}
+
+	public struct SetPSGNoiseFrequency : IEchoChannelEvent
+	{
+		private SetFrequencyEvent _wrapper;
+
+		public ESFChannel Channel { get { return _wrapper.Channel; } }
+
+		public SetPSGNoiseFrequency(ESFChannel channel, ushort frequency)
+			:this()
+		{
+			_wrapper = new SetFrequencyEvent(channel, frequency);
+		}
+
+		public byte[] GetBinaryData()
+		{
+			return _wrapper.GetBinaryData();
+		}
+
+		public string GetComment(out int tabAmount)
+		{
+			return _wrapper.GetComment(out tabAmount);
+		}
+
+		public bool IsSameKind(IEchoEvent other)
+		{
+			return other is SetPSGNoiseFrequency && ((SetPSGNoiseFrequency)other).Channel == this.Channel;
+		}
+
+		public bool HadSameParameters(IEchoChannelEvent other)
+		{
+			if (this.IsSameKind(other))
+			{
+				return ((SetPSGNoiseFrequency)other)._wrapper.Frequency == this._wrapper.Frequency;
+			}
+
+			return false;
+		}
 	}
 
 	public struct SetInstrumentEvent : IEchoChannelEvent

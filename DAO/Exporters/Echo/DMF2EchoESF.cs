@@ -781,7 +781,7 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 
 					/* Only update frequency if it's not the same as the last */
 					if (psg3.LastFreq != psg3.ToneFreq)
-						SetFrequencyEvent(psg3.ESFId, psg3.ToneFreq, patternRow);
+						SetPSGNoiseFrequencyEvent(psg3.ESFId, psg3.ToneFreq, patternRow);
 
 					psg3.LastFreq = psg3.ToneFreq;
 
@@ -1267,7 +1267,7 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 
 					/* Only update frequency if it's not the same as the last */
 					if (psg3.LastFreq != psg3.ToneFreq)
-						SetFrequencyEvent(psg3.ESFId, psg3.ToneFreq, patternRow, processDelay);
+						SetPSGNoiseFrequencyEvent(psg3.ESFId, psg3.ToneFreq, patternRow, processDelay);
 
 					psg3.LastFreq = psg3.ToneFreq;
 
@@ -1441,6 +1441,12 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 		{
 			if(processDelay) WaitEvent(patternRow.Events);
 			patternRow.Events.Add(new SetFrequencyEvent(channel, freq));
+		}
+
+		static private void SetPSGNoiseFrequencyEvent(ESFChannel channel, ushort freq, EchoPatternRow patternRow, bool processDelay = true)
+		{
+			if (processDelay) WaitEvent(patternRow.Events);
+			patternRow.Events.Add(new SetPSGNoiseFrequency(channel, freq));
 		}
 
 		static private void NoteOnEvent(ESFChannel channel, byte note, byte octave, byte instrumentIndex, EchoPatternRow patternRow, bool processDelay)
