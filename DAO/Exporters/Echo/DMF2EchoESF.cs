@@ -54,11 +54,12 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 				_channels[i] = new ProcessingChannel(channel.Id, channel.Type, channel.Channel, data.Channels[i].Export);
 			}
 
-			SetHeader(data, esf);
+			bool hasLoopJump = data.IsLoopJumpSet();
+			SetHeader(data, esf, hasLoopJump);
 			ParsePatternPages(data, esf, activeInstruments);
 			
-			if (data.LoopWholeTrack) GoToLoopEvent(esf.Footer);
-			StopPlaybackEvent(esf.Footer);
+			if (!hasLoopJump && data.LoopWholeTrack) GoToLoopEvent(esf.Footer);
+			if (!hasLoopJump && !data.LoopWholeTrack) StopPlaybackEvent(esf.Footer);
 
 			ESFOptimizer.Optimize(esf);
 
@@ -1540,10 +1541,10 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 		}
 		#endregion
 
-		static private void SetHeader(DMFData data, EchoESF output)
+		static private void SetHeader(DMFData data, EchoESF output, bool hasLoopJump)
 		{
 			if (data.LockChannels) LockChannels(data, output);
-			if (!data.IsLoopJumpSet() && data.LoopWholeTrack) SetLoopEvent(output.Header);
+			if (!hasLoopJump && data.LoopWholeTrack) SetLoopEvent(output.Header);
 		}
 
 		static private void LockChannels(DMFData data, EchoESF output)
