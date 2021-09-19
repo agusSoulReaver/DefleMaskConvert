@@ -283,8 +283,9 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 	{
 		public ESFChannel Channel { get; private set; }
 		public readonly byte InstrumentIndex;
+		public readonly string InstrumentName;
 
-		public SetInstrumentEvent(ESFChannel channel, byte instrumentIndex)
+		public SetInstrumentEvent(ESFChannel channel, byte instrumentIndex, string name)
 			: this()
 		{
 			if (channel == ESFChannel.DAC)
@@ -292,6 +293,7 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 
 			Channel = channel;
 			InstrumentIndex = instrumentIndex;
+			InstrumentName = name;
 		}
 
 		public byte[] GetBinaryData()
@@ -302,7 +304,7 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 		public string GetComment(out int tabAmount)
 		{
 			tabAmount = 2;
-			return string.Format("Set instrument for channel {0}", Constants.GetChannelName(Channel));
+			return string.Format(@"Set instrument ""{1}"" for channel {0}", Constants.GetChannelName(Channel), InstrumentName);
 		}
 
 		public bool IsSameKind(IEchoEvent other)

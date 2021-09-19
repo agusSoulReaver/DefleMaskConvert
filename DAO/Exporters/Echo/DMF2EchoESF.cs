@@ -286,7 +286,7 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 					{
 						channel.Instrument = channel.NewInstrument;
 						byte instrumentIdx = (byte)activeInstruments.IndexOf(data.Instruments[channel.Instrument]);
-						SetInstrumentEvent(channel.ESFId, instrumentIdx, patternRow);
+						SetInstrumentEvent(channel.ESFId, instrumentIdx, activeInstruments[instrumentIdx].Name, patternRow);
 
 						//Set LFO and AMS
 						FMInstrumentData fm = data.Instruments[channel.Instrument] as FMInstrumentData;
@@ -1474,10 +1474,10 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 			patternRow.Events.Add(new SetVolumeEvent(channel, volume));
 		}
 
-		static private void SetInstrumentEvent(ESFChannel channel, byte index, EchoPatternRow patternRow)
+		static private void SetInstrumentEvent(ESFChannel channel, byte index, string name, EchoPatternRow patternRow)
 		{
 			WaitEvent(patternRow.Events);
-			patternRow.Events.Add(new SetInstrumentEvent(channel, index));
+			patternRow.Events.Add(new SetInstrumentEvent(channel, index, name));
 		}
 
 		static private void SetLoopEvent(EchoPatternRow patternRow)
