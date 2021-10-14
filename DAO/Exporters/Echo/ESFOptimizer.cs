@@ -16,19 +16,16 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 
 		static private void TryDistributeEvents(EchoESF data)
 		{
-			List<IEchoChannelEvent> startEvents = null;	
 			var firstEvents = data.Pages[0].Rows[0].Events;
 
 			RefreshRelevantEventIndexes(firstEvents);
 			if (_indexes.Count > 0)
 			{
 				data.Header.Insert(0, new DelayEvent(1, true));
-				startEvents = new List<IEchoChannelEvent>();
 
 				for (int i = _indexes.Count; --i >= 0; )
 				{
 					var channelEvent = (IEchoChannelEvent)firstEvents[_indexes[i]];
-					startEvents.Insert(0, channelEvent);
 					firstEvents.RemoveAt(_indexes[i]);
 					data.Header.Insert(0, channelEvent);
 				}
@@ -42,34 +39,16 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 
 				for (int rowIndex = 0; rowIndex < page.Rows.Count; rowIndex++)
 				{
-					if (page == startLoopPage && rowIndex == 0) continue;
-
 					var row = page.Rows[rowIndex];
 					if (startLoopPage == null && ContaineStartLoop(row.Events))
-					{
 						startLoopPage = page;
-						RefreshRelevantEventIndexes(row.Events);
-						if (_indexes.Count > 0)
-						{
-							startEvents = new List<IEchoChannelEvent>();
-							for (int i = _indexes.Count; --i >= 0; )
-							{
-								var channelEvent = (IEchoChannelEvent)row.Events[_indexes[i]];
-								startEvents.Insert(0, channelEvent);
-							}
-						}
-					}
-					else
-					{
-						if (row.Events.Count <= 0) continue;
-						RefreshRelevantEventIndexes(row.Events);
-					}
+					
+					if (row.Events.Count <= 0) continue;
+					RefreshRelevantEventIndexes(row.Events);
 
 					if (_indexes.Count <= 0) continue;
 
-					int pageLimit = startLoopPage != null ? startLoopPage.Index : 0;
-					if (pageIndex < pageLimit) pageLimit = pageIndex;
-					TryDistributeEvents(data, row.Events, pageIndex, rowIndex, pageLimit);
+					TryDistributeEvents(data, row.Events, pageIndex, rowIndex, 0);
 				}
 			}
 
@@ -108,7 +87,14 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 							for (int eventIndex = row.Events.Count; --eventIndex >= 0 && !completed; )
 							{
 								var eventData = row.Events[eventIndex];
-								if (setInstrument.IsSameKind(eventData))
+								bool canMove = setInstrument.IsSameKind(eventData);
+								if (!canMove && eventData is NoteOnEvent)
+								{
+									var noteOn = (NoteOnEvent)eventData;
+									canMove = noteOn.Channel != ESFChannel.DAC && noteOn.Channel == setInstrument.Channel && noteOn.InstrumentIndex != setInstrument.InstrumentIndex;
+								}
+
+								if (canMove)
 								{
 									saveEvents = FindFreeSpace(data.Pages, setInstrument, pageIndex, rowIndex, startPage, startRow, out saveIndex, true);
 									if (saveEvents != null)
@@ -118,12 +104,6 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 										TryExtractAttributes<IEchoEvent>(saveEvents, saveIndex, setInstrument.Channel, ref events);
 									}
 									completed = true;
-								}
-								else if(eventData is NoteOnEvent)
-								{
-									var noteOn = (NoteOnEvent)eventData;
-									if (noteOn.Channel != ESFChannel.DAC && noteOn.Channel == setInstrument.Channel && noteOn.InstrumentIndex != setInstrument.InstrumentIndex)
-										completed = true;
 								}
 							}
 						}
@@ -649,10 +629,16 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 							break;
 						}
 					}
-					if (add && !_loopChannels.Contains(e.Channel))
+
+					if (add)
 					{
-						_loopEvents.Add(e);
-						_loopChannels.Add(e.Channel);
+						if(!(e is SetInstrumentEvent))
+							_loopEvents.Add(e);
+						else if (!_loopChannels.Contains(e.Channel))
+						{
+							_loopEvents.Add(e);
+							_loopChannels.Add(e.Channel);
+						}
 					}
 				}
 			}

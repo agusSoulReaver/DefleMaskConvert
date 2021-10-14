@@ -84,6 +84,11 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 		{
 			return other is NoteOnEvent && ((NoteOnEvent)other).Channel == this.Channel;
 		}
+
+		public override string ToString()
+		{
+			return string.Format("NoteOn {0}", Channel);
+		}
 	}
 
 	public struct NoteOffEvent : IEchoEvent
@@ -110,6 +115,11 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 		public bool IsSameKind(IEchoEvent other)
 		{
 			return other is NoteOffEvent && ((NoteOffEvent)other).Channel == this.Channel;
+		}
+
+		public override string ToString()
+		{
+			return string.Format("NoteOff {0}", Channel);
 		}
 	}
 
@@ -149,6 +159,11 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 			}
 
 			return false;
+		}
+
+		public override string ToString()
+		{
+			return string.Format("SetVolume {0}", Channel);
 		}
 	}
 
@@ -239,6 +254,10 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 			return other is SetFrequencyEvent && ((SetFrequencyEvent)other).Channel == this.Channel;
 		}
 
+		public override string ToString()
+		{
+			return string.Format("SetFrequency {0}", Channel);
+		}
 	}
 
 	public struct SetPSGNoiseFrequency : IEchoChannelEvent
@@ -276,6 +295,11 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 			}
 
 			return false;
+		}
+
+		public override string ToString()
+		{
+			return string.Format("SetPSGNoiseFrequency {0}", Channel);
 		}
 	}
 
@@ -320,6 +344,11 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 			}
 
 			return false;
+		}
+
+		public override string ToString()
+		{
+			return string.Format("SetInstrument {0}", Channel);
 		}
 	}
 
@@ -368,6 +397,11 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 		{
 			return other is DelayEvent;
 		}
+
+		public override string ToString()
+		{
+			return string.Format("Delay, {0} ticks", Ticks+1);
+		}
 	}
 
 	public struct LockChannelEvent : IEchoEvent
@@ -394,6 +428,11 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 		public bool IsSameKind(IEchoEvent other)
 		{
 			return other is LockChannelEvent && ((LockChannelEvent)other).Channel == this.Channel;
+		}
+
+		public override string ToString()
+		{
+			return string.Format("LockChannel {0}", Channel);
 		}
 	}
 
@@ -458,6 +497,11 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 				return ((SetFMParametersEvent)other)._data == this._data;
 
 			return false;
+		}
+
+		public override string ToString()
+		{
+			return string.Format("SetFMParameters {0}", Channel);
 		}
 	}
 
@@ -532,6 +576,11 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 		public bool IsSameKind(IEchoEvent other)
 		{
 			return other is PlaybackEvent;
+		}
+
+		public override string ToString()
+		{
+			return string.Format("Playback {0}", Action);
 		}
 	}
 
