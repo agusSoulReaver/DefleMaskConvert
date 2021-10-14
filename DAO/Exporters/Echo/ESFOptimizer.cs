@@ -76,7 +76,7 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 			if (startLoopPage != null)
 			{
 				var loopEvents = FindLoopEvents(data, startLoopPage);
-				if(loopEvents.Count > 0) TryDistributeLoopEvents(data, startEvents);
+				if(loopEvents.Count > 0) TryDistributeLoopEvents(data, loopEvents);
 			}
 		}
 
@@ -253,6 +253,9 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 											saveEvents = endEvents;
 											saveIndex = loopIndex;
 										}
+
+										if(setInstrument.Channel == ESFChannel.PSG4)
+											saveEvents.Insert(saveIndex++, new NoteOffEvent(ESFChannel.PSG4));
 
 										saveEvents.Insert(saveIndex, setInstrument);
 										TryExtractAttributes<IEchoChannelEvent>(saveEvents, saveIndex, setInstrument.Channel, ref loopEvents);
@@ -596,33 +599,41 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 		}
 
 		static private List<IEchoChannelEvent> _loopEvents = new List<IEchoChannelEvent>();
+		static private HashSet<ESFChannel> _loopChannels = new HashSet<ESFChannel>();
 		static private List<IEchoChannelEvent> FindLoopEvents(EchoESF data, EchoPatternPage startPage)
 		{
 			_loopEvents.Clear();
+			_loopChannels.Clear();
 
-			EchoPatternPage page;
-			EchoPatternRow row;
 			int startIndex = data.Pages.IndexOf(startPage);
 			bool goBackward = startIndex > 0;
 			int dir = goBackward ? -1 : 1;
-
-			for (int pageIndex = goBackward ? startIndex - 1 : startIndex; pageIndex >= 0 && pageIndex <= startIndex; pageIndex += dir)
-			{
-				page = data.Pages[pageIndex];
-
-				for (int rowIndex = goBackward ? page.Rows.Count-1 : 0; rowIndex >= 0 && rowIndex < page.Rows.Count; rowIndex += dir)
-				{
-					row = page.Rows[rowIndex];
-					FilterLoopevents(goBackward, row.Events, dir);
-				}
-			}
-
-			if (goBackward) FilterLoopevents(goBackward, data.Header, dir);
+			FilterLoopEvents(data, startIndex, goBackward, dir);
+			if(goBackward)
+				FilterLoopEvents(data, startIndex, false, 1);
 
 			return _loopEvents;
 		}
 
-		static private void FilterLoopevents(bool goBackward, List<IEchoEvent> events, int dir)
+		static private void FilterLoopEvents(EchoESF data, int startIndex, bool goBackward, int dir)
+		{
+			if (!goBackward) FilterLoopEvents(goBackward, data.Header, dir);
+
+			for (int pageIndex = goBackward ? startIndex - 1 : startIndex; pageIndex >= 0 && pageIndex <= startIndex; pageIndex += dir)
+			{
+				var page = data.Pages[pageIndex];
+
+				for (int rowIndex = goBackward ? page.Rows.Count - 1 : 0; rowIndex >= 0 && rowIndex < page.Rows.Count; rowIndex += dir)
+				{
+					var row = page.Rows[rowIndex];
+					FilterLoopEvents(goBackward, row.Events, dir);
+				}
+			}
+
+			if (goBackward) FilterLoopEvents(goBackward, data.Header, dir);
+		}
+
+		static private void FilterLoopEvents(bool goBackward, List<IEchoEvent> events, int dir)
 		{
 			for (int eventIndex = goBackward ? events.Count - 1 : 0; eventIndex >= 0 && eventIndex < events.Count; eventIndex += dir)
 			{
@@ -638,7 +649,11 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 							break;
 						}
 					}
-					if (add) _loopEvents.Add(e);
+					if (add && !_loopChannels.Contains(e.Channel))
+					{
+						_loopEvents.Add(e);
+						_loopChannels.Add(e.Channel);
+					}
 				}
 			}
 		}
