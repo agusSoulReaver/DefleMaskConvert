@@ -84,6 +84,7 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 			}
 
 			_writer.NewLine();
+			_writer.Even();
 		}
 
 		private void WriteEvent(IEchoEvent eventData)

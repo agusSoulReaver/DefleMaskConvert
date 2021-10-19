@@ -35,6 +35,7 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 				if (label != null)
 				{
 					labels.Add(label);
+					_writer.Even();
 					_writer.NewLine();
 				}
 			}
@@ -47,6 +48,7 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 					_writer.EchoListEntry(instrument);
 				}
 				_writer.EchoListEnd();
+				_writer.Even();
 			}
 		}
 
