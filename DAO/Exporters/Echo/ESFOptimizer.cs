@@ -31,6 +31,16 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 				}
 			}
 
+			for (int i = 0; i < data.Header.Count; i++)
+			{
+				var channelEvent = data.Header[i];
+				if (channelEvent is LockChannelEvent)
+				{
+					data.Header.RemoveAt(i);
+					data.Header.Insert(0, channelEvent);
+				}
+			}
+
 			EchoPatternPage startLoopPage = ContaineStartLoop(data.Header) ? data.Pages[0] : GetLoopPage(data);
 
 			for (int pageIndex = 0; pageIndex < data.Pages.Count; pageIndex++)
