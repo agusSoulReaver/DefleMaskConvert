@@ -221,6 +221,24 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 					{
 						SkipPattern = false;
 						CurrPattern = NextPattern - 1;
+
+						for (int CurrChannel = 0; CurrChannel < _channels.Length; CurrChannel++)
+						{
+							ProcessingChannel channel = _channels[CurrChannel];
+							if (!channel.Export) continue;
+
+							//Turn off effects which stop at note off
+							channel.m_effectPortaNote.PortaNote = EffectMode.Off;
+							channel.m_effectPortmento.Porta = EffectMode.Off;
+
+							channel.m_effectVibrato.mode = EffectMode.Off;
+							channel.m_effectVibrato.stage = EffectStage.End;
+
+							channel.m_effectVolSlide.VolSlide = EffectMode.Off;
+							channel.m_effectPSGNoise.Mode = EffectMode.Off;
+							channel.m_effectPSGNoise.EnvelopeSize = 0;
+							channel.FineTune.Mode = EffectMode.Off;
+						}
 						break;
 					}
 				}
@@ -405,8 +423,8 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 				channel.lastPanning = 0x11;
 
 				//Turn off effects which stop at note off
-				//channel.m_effectPortaNote.PortaNote = EffectMode.Off;
-				//channel.m_effectPortmento.Porta = EffectMode.Off;
+				channel.m_effectPortaNote.PortaNote = EffectMode.Off;
+				channel.m_effectPortmento.Porta = EffectMode.Off;
 
 				channel.m_effectVibrato.mode = EffectMode.Off;
 				channel.m_effectVibrato.stage = EffectStage.End;
@@ -696,8 +714,17 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 						bool isOctaveUp = (sbyte)channel.m_effectPortaNote.PortaNoteTargetOctave - (sbyte)channel.m_effectPortaNote.PortaNoteCurrentOctave > 0;
 						bool isSameOctave = (sbyte)channel.m_effectPortaNote.PortaNoteTargetOctave - (sbyte)channel.m_effectPortaNote.PortaNoteCurrentOctave == 0;
 						bool isNoteUp = (sbyte)channel.m_effectPortaNote.PortaNoteTargetNote - (sbyte)channel.m_effectPortaNote.PortaNoteCurrentNote >= 0;
-						channel.m_effectPortaNote.PortaNote = isOctaveUp || (isSameOctave && isNoteUp) ? EffectMode.Up : EffectMode.Down;
-						channel.m_effectPortaNote.Stage = EffectStage.Initialise;
+
+						if (effectParam == 0)
+						{
+							channel.m_effectPortaNote.PortaNote = EffectMode.Off;
+							channel.m_effectPortaNote.Stage = EffectStage.Off;
+						}
+						else
+						{
+							channel.m_effectPortaNote.PortaNote = noteData.IsOff ? EffectMode.Off : (isOctaveUp || (isSameOctave && isNoteUp) ? EffectMode.Up : EffectMode.Down);
+							channel.m_effectPortaNote.Stage = EffectStage.Initialise;
+						}
 
 						//Cancel vibrato
 						channel.m_effectVibrato.mode = EffectMode.Off;
