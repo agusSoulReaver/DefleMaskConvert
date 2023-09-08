@@ -567,12 +567,20 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 						if(effectParam != 0)
 						{
 							channel.m_effectArpeggio.Arp = EffectMode.Normal;
+							channel.m_effectArpeggio.ArpCounter = 0;
 							byte ArpOct;
 							byte ArpNote;
 
+							byte note = channel.EffectNote;
+							byte octave = channel.EffectOctave;
+							if (channel.Type == ChannelType.PSG)
+								channel.m_effectArpeggio.Note = GetArpegioFreq(channel.Type, note, octave);
+							else
+								channel.m_effectArpeggio.Note = GetArpegioFreq(channel.Type, note, octave);
+
 							/* do first freq */
-							ArpOct = channel.Octave;
-							ArpNote = (byte)(channel.Note + (effectParam & 0xf0 >> 4));
+							ArpOct = channel.EffectOctave;
+							ArpNote = (byte)(note + (effectParam & 0xf0 >> 4));
 							while (ArpNote > Constants.LAST_NOTE)
 							{
 								ArpOct++;
@@ -581,17 +589,19 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 
 							/* PSG */
 							if(channel.Type == ChannelType.PSG)
-								channel.m_effectArpeggio.Arp1 = PSGFreqs[ArpNote][ArpOct - 2];
+								channel.m_effectArpeggio.Arp1 = GetArpegioFreq(channel.Type, ArpNote, ArpOct);
+								//channel.m_effectArpeggio.Arp1 = PSGFreqs[ArpNote][ArpOct - 2];
 							else
-								channel.m_effectArpeggio.Arp1 = (ushort)((channel.Octave << 11) | FMFreqs[channel.Note]);
+								channel.m_effectArpeggio.Arp1 = GetArpegioFreq(channel.Type, note, octave);
+								//channel.m_effectArpeggio.Arp1 = (ushort)((octave << 11) | FMFreqs[note]);
 
 							channel.m_effectArpeggio.Arp2 = 0;
 
 							/* do second freq */
 							if((effectParam & 0x0f) > 0)
 							{
-								ArpOct = channel.Octave;
-								ArpNote = (byte)(channel.Note + (effectParam & 0xf0 >> 4));
+								ArpOct = channel.EffectOctave;
+								ArpNote = (byte)(note + (effectParam & 0x0f));
 								while (ArpNote > Constants.LAST_NOTE)
 								{
 									ArpOct++;
@@ -599,10 +609,12 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 								}
 
 								/* PSG */
-								if(channel.Type == ChannelType.PSG)
-									channel.m_effectArpeggio.Arp2 = PSGFreqs[ArpNote][ArpOct - 2];
+								if (channel.Type == ChannelType.PSG)
+									channel.m_effectArpeggio.Arp2 = GetArpegioFreq(channel.Type, ArpNote, ArpOct);
+									//channel.m_effectArpeggio.Arp2 = PSGFreqs[ArpNote][ArpOct - 2];
 								else
-									channel.m_effectArpeggio.Arp2 = (ushort)((channel.Octave << 11) | FMFreqs[channel.Note]);
+									channel.m_effectArpeggio.Arp2 = GetArpegioFreq(channel.Type, note, octave);
+									//channel.m_effectArpeggio.Arp2 = (ushort)((octave << 11) | FMFreqs[note]);
 							}
 
 						}
@@ -768,6 +780,14 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 						break;
 				}
 			}
+		}
+
+		static private ushort GetArpegioFreq(ChannelType type, byte note, byte octave)
+		{
+			if (type == ChannelType.PSG)
+				return PSGFreqs[note][octave];
+			
+			return FMFreqs[note];
 		}
 
 		static private void NoteOn(ProcessingChannel channel, EchoPatternRow patternRow, DMFData data, List<InstrumentData> activeInstruments, bool processDelay=true)
@@ -953,7 +973,78 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 
 			int numEffectsProcess = 0;
 			//Process active effects
-			if(channel.m_effectPortmento.Porta != EffectMode.Off)
+			if (channel.m_effectArpeggio.Arp != EffectMode.Off)
+			{
+				int total = channel.m_effectArpeggio.Arp2 != 0 ? 3 : 2;
+				ushort[] notes = new ushort[] { channel.m_effectArpeggio.Note, channel.m_effectArpeggio.Arp1, channel.m_effectArpeggio.Arp2 };
+				int idx = ++channel.m_effectArpeggio.ArpCounter % total;
+				channel.m_effectArpeggio.ArpCounter = (byte)idx;
+				ushort prevSemitone = (ushort)channel.EffectSemitone;
+				channel.EffectSemitone = notes[idx];
+
+				//byte currentNote = channel.m_effectPortaNote.PortaNoteCurrentNote;
+				//byte targetNote = channel.m_effectPortaNote.PortaNoteTargetNote;
+				//byte targetOctave = channel.m_effectPortaNote.PortaNoteTargetOctave;
+				////Sign extend
+				//ushort speed = (ushort)channel.m_effectPortaNote.PortaNoteSpeed;
+
+				//bool isGoingUp = channel.m_effectPortaNote.PortaNote == EffectMode.Up;
+				////Calc delta
+				//short delta = (short)(isGoingUp ? speed : -speed);
+
+				//byte prevOctave = channel.m_effectPortaNote.PortaNoteCurrentOctave;
+				//bool completed = false;
+
+				//if (channel.Id < ChannelId.PSG1)
+				//{
+				//	SlideFM(ref channel.m_effectPortaNote.PortaNoteCurrentOctave, ref channel.EffectSemitone, delta);
+
+				//	if ((isGoingUp && ((channel.m_effectPortaNote.PortaNoteCurrentOctave == targetOctave && channel.EffectSemitone >= FMFreqs[targetNote]) || channel.m_effectPortaNote.PortaNoteCurrentOctave > targetOctave)) ||
+				//		(!isGoingUp && ((channel.m_effectPortaNote.PortaNoteCurrentOctave == targetOctave && channel.EffectSemitone <= FMFreqs[targetNote]) || channel.m_effectPortaNote.PortaNoteCurrentOctave < targetOctave)))
+				//	{
+				//		channel.m_effectPortaNote.PortaNoteCurrentOctave = targetOctave;
+				//		channel.EffectSemitone = FMFreqs[targetNote];
+				//		channel.EffectPrevSemitone = channel.EffectSemitone;
+				//		completed = true;
+				//	}
+				//}
+				//else
+				//{
+				//	SlidePSG(ref channel.m_effectPortaNote.PortaNoteCurrentOctave, ref channel.EffectSemitone, delta);
+
+				//	ushort frequency = PSGFreqs[targetNote][targetOctave];
+				//	if ((isGoingUp && channel.EffectSemitone <= frequency) ||
+				//		(!isGoingUp && channel.EffectSemitone >= frequency))
+				//	{
+				//		channel.m_effectPortaNote.PortaNoteCurrentOctave = targetOctave;
+				//		channel.EffectSemitone = frequency;
+				//		channel.EffectPrevSemitone = channel.EffectSemitone;
+				//		completed = true;
+				//	}
+				//}
+
+				//Set frequency
+				if (prevSemitone != channel.EffectSemitone)
+				{
+					//channel.Octave = channel.m_effectPortaNote.PortaNoteCurrentOctave;
+					var chan = channel.Id;
+
+					//If PSG4 in noise mode, set on PSG3 instead
+					if (chan == ChannelId.PSG4 && PSGNoiseFreq)
+					{
+						chan = ChannelId.PSG3;
+					}
+
+					SetFrequency(chan, (ushort)channel.EffectSemitone, patternRow, false);
+				}
+
+				//Continue until next note off
+				numEffectsProcess++;
+				//if (completed) channel.m_effectPortaNote.PortaNote = EffectMode.Off;
+				//channel.m_effectPortaNote.Stage = completed ? EffectStage.Off : EffectStage.Continue;
+			}
+
+			if (channel.m_effectPortmento.Porta != EffectMode.Off)
 			{
 				if(channel.m_effectPortmento.NoteOnthisTick)
 				{
@@ -1422,6 +1513,11 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 		static private EffectStage GetActiveEffectStage(ProcessingChannel channel)
 		{
 			//TODO: Other effects
+			if (channel.m_effectArpeggio.Arp != EffectMode.Off)
+			{
+				return EffectStage.Continue;
+			}
+
 			if (channel.m_effectPortmento.Porta != EffectMode.Off)
 			{
 				return channel.m_effectPortmento.Stage;

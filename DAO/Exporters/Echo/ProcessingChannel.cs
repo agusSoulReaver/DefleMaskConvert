@@ -77,6 +77,7 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 
 		//0xx (arpeggio)
 		public EffectMode Arp;
+		public ushort Note;
 		public ushort Arp1;
 		public ushort Arp2;
 		public byte ArpCounter;
