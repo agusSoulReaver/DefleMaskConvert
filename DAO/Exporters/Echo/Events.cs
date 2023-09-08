@@ -171,11 +171,13 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 	{
 		public ESFChannel Channel { get; private set; }
 		public readonly ushort Frequency;
+		public readonly string Comment;
 		private readonly byte[] _data;
 
-		public SetFrequencyEvent(ESFChannel channel, ushort frequency)
+		public SetFrequencyEvent(ESFChannel channel, ushort frequency, string comment)
 			: this()
 		{
+			Comment = comment;
 			if (channel == ESFChannel.DAC)
 				throw new ArgumentException("You can't set DAC's frequency!");
 
@@ -240,10 +242,10 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 			switch (DMF2EchoESF.ESF_CHANNEL_TYPES[(int)Channel])
 			{
 				case ChannelType.FM:
-					return string.Format("Set frequency '{0}' (octave {1} semitone {2}) for channel {3}", Frequency, (Frequency >> 11), (Frequency & 0x7FF), name);
+					return string.Format("Set frequency '{0}' (octave {1} semitone {2}) for channel {3} [{4}]", Frequency, (Frequency >> 11), (Frequency & 0x7FF), name, Comment);
 				case ChannelType.PSG:
 				case ChannelType.PSG4:
-					return string.Format("Set frequency '{0}' for channel {1}", Frequency, name);
+					return string.Format("Set frequency '{0}' for channel {1} [{2}]", Frequency, name, Comment);
 			}
 
 			return null;
@@ -266,10 +268,10 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 
 		public ESFChannel Channel { get { return _wrapper.Channel; } }
 
-		public SetPSGNoiseFrequency(ESFChannel channel, ushort frequency)
+		public SetPSGNoiseFrequency(ESFChannel channel, ushort frequency, string comment)
 			:this()
 		{
-			_wrapper = new SetFrequencyEvent(channel, frequency);
+			_wrapper = new SetFrequencyEvent(channel, frequency, comment);
 		}
 
 		public byte[] GetBinaryData()
@@ -299,7 +301,7 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 
 		public override string ToString()
 		{
-			return string.Format("SetPSGNoiseFrequency {0}", Channel);
+			return string.Format("SetPSGNoiseFrequency {0} {1}", Channel, _wrapper.Comment);
 		}
 	}
 

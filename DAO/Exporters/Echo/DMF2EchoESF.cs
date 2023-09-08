@@ -417,14 +417,15 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 			{
 				NoteOffEvent(channel.ESFId, patternRow);
 
+				channel.NoteOn = false;
 				channel.ToneFreq = 0;
 				channel.LastFreq = 0;
 				channel.NewFreq = 0;
 				channel.lastPanning = 0x11;
 
 				//Turn off effects which stop at note off
-				channel.m_effectPortaNote.PortaNote = EffectMode.Off;
-				channel.m_effectPortmento.Porta = EffectMode.Off;
+				//channel.m_effectPortaNote.PortaNote = EffectMode.Off;
+				//channel.m_effectPortmento.Porta = EffectMode.Off;
 
 				channel.m_effectVibrato.mode = EffectMode.Off;
 				channel.m_effectVibrato.stage = EffectStage.End;
@@ -445,6 +446,7 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 					channel.Note = 0;
 				}
 
+				channel.NoteOn = true;
 				//Save last note/octave for effects in subsequent rows
 				channel.m_effectPortaNote.PortaNoteCurrentNote = channel.EffectNote;
 				channel.m_effectPortaNote.PortaNoteCurrentOctave = channel.EffectOctave;
@@ -829,7 +831,7 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 
 					/* Only update frequency if it's not the same as the last */
 					if (psg3.LastFreq != psg3.ToneFreq)
-						SetPSGNoiseFrequencyEvent(psg3.ESFId, psg3.ToneFreq, patternRow);
+						SetPSGNoiseFrequencyEvent(psg3.ESFId, psg3.ToneFreq, patternRow, "NoteOn");
 
 					psg3.LastFreq = psg3.ToneFreq;
 
@@ -928,7 +930,7 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 					if (channel.FineTune.Mode != EffectMode.Off)
 					{
 						channel.Octave = channel.FineTune.NoteOctave;
-						SetFrequency(channel.Id, channel.FineTune.NoteFrequency, patternRow, false);
+						SetFrequency(channel.Id, channel.FineTune.NoteFrequency, patternRow, false, "NoteOn");
 					}
 				}
 			}
@@ -1035,7 +1037,7 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 						chan = ChannelId.PSG3;
 					}
 
-					SetFrequency(chan, (ushort)channel.EffectSemitone, patternRow, false);
+					SetFrequency(chan, (ushort)channel.EffectSemitone, patternRow, false, "Arpeggio");
 				}
 
 				//Continue until next note off
@@ -1044,7 +1046,7 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 				//channel.m_effectPortaNote.Stage = completed ? EffectStage.Off : EffectStage.Continue;
 			}
 
-			if (channel.m_effectPortmento.Porta != EffectMode.Off)
+			if (channel.m_effectPortmento.Porta != EffectMode.Off && channel.NoteOn)
 			{
 				if(channel.m_effectPortmento.NoteOnthisTick)
 				{
@@ -1083,7 +1085,7 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 							chan = ChannelId.PSG3;
 						}
 
-						SetFrequency(chan, (ushort)channel.EffectSemitone, patternRow, false);
+						SetFrequency(chan, (ushort)channel.EffectSemitone, patternRow, false, string.Format("Porta{0}", channel.m_effectPortmento.Porta.ToString()));
 					}
 				}
 
@@ -1129,7 +1131,7 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 			//	channel.m_effectPortaNote.PortaNoteCurrentNote = currentNote;
 			//	channel.m_effectPortaNote.PortaNoteCurrentOctave = currentOctave;
 			//}
-			if (channel.m_effectPortaNote.PortaNote != EffectMode.Off)
+			if (channel.m_effectPortaNote.PortaNote != EffectMode.Off && channel.NoteOn)
 			{
 				byte currentNote = channel.m_effectPortaNote.PortaNoteCurrentNote;
 				byte targetNote = channel.m_effectPortaNote.PortaNoteTargetNote;
@@ -1185,7 +1187,7 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 						chan = ChannelId.PSG3;
 					}
 
-					SetFrequency(chan, (ushort)channel.EffectSemitone, patternRow, false);
+					SetFrequency(chan, (ushort)channel.EffectSemitone, patternRow, false, string.Format("PortaNote{0}", channel.m_effectPortaNote.PortaNote.ToString()));
 				}
 
 				//Continue until next note off
@@ -1213,7 +1215,7 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 				if(channel.m_effectVibrato.stage == EffectStage.End)
 				{
 					channel.Octave = channel.EffectOctave;
-					SetFrequency(channel.Id, (ushort)channel.EffectSemitone, patternRow, false);
+					SetFrequency(channel.Id, (ushort)channel.EffectSemitone, patternRow, false, "Vibrato");
 					channel.m_effectVibrato.mode = EffectMode.Off;
 					channel.m_effectVibrato.stage = EffectStage.Off;
 					channel.m_effectVibrato.sineTime = 0;
@@ -1252,7 +1254,7 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 							chan = ChannelId.PSG3;
 						}
 
-						SetFrequency(chan, (ushort)newSemitone, patternRow, false);
+						SetFrequency(chan, (ushort)newSemitone, patternRow, false, "Vibrato");
 					}
 
 					channel.m_effectVibrato.stage = EffectStage.Continue;
@@ -1357,7 +1359,7 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 				semitone = PSGFreqs[0][0];
 		}
 
-		static private void SetFrequency(ChannelId chan, ushort FMSemitone, EchoPatternRow patternRow, bool processDelay)
+		static private void SetFrequency(ChannelId chan, ushort FMSemitone, EchoPatternRow patternRow, bool processDelay, string effectComment)
 		{
 			ProcessingChannel channel = _channels[(int)chan];
 			/* Is this the PSG noise channel? */
@@ -1386,7 +1388,7 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 
 					/* Only update frequency if it's not the same as the last */
 					if (psg3.LastFreq != psg3.ToneFreq)
-						SetPSGNoiseFrequencyEvent(psg3.ESFId, psg3.ToneFreq, patternRow, processDelay);
+						SetPSGNoiseFrequencyEvent(psg3.ESFId, psg3.ToneFreq, patternRow, effectComment, processDelay);
 
 					psg3.LastFreq = psg3.ToneFreq;
 
@@ -1416,7 +1418,7 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 				{
 					if (channel.LastFreq != channel.ToneFreq)
 					{
-						SetFrequencyEvent(channel.ESFId, channel.ToneFreq, patternRow, processDelay);
+						SetFrequencyEvent(channel.ESFId, channel.ToneFreq, patternRow, effectComment, processDelay);
 					}
 				}
 
@@ -1518,7 +1520,7 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 				return EffectStage.Continue;
 			}
 
-			if (channel.m_effectPortmento.Porta != EffectMode.Off)
+			if (channel.m_effectPortmento.Porta != EffectMode.Off && channel.NoteOn)
 			{
 				return channel.m_effectPortmento.Stage;
 			}
@@ -1528,7 +1530,7 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 				return channel.m_effectVibrato.stage;
 			}
 
-			if (channel.m_effectPortaNote.PortaNote != EffectMode.Off)
+			if (channel.m_effectPortaNote.PortaNote != EffectMode.Off && channel.NoteOn)
 			{
 				return channel.m_effectPortaNote.Stage;
 			}
@@ -1561,16 +1563,16 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 			events.Add(new SetBankRegisterEvent(SetBankRegisterEvent.Banks.Bank0, FMRegister.TimerA_LSBs, rateLow, "Set PCM Rate. Set param LSBs"));
 		}
 
-		static private void SetFrequencyEvent(ESFChannel channel, ushort freq, EchoPatternRow patternRow, bool processDelay=true)
+		static private void SetFrequencyEvent(ESFChannel channel, ushort freq, EchoPatternRow patternRow, string comment, bool processDelay=true)
 		{
 			if(processDelay) WaitEvent(patternRow.Events);
-			patternRow.Events.Add(new SetFrequencyEvent(channel, freq));
+			patternRow.Events.Add(new SetFrequencyEvent(channel, freq, comment));
 		}
 
-		static private void SetPSGNoiseFrequencyEvent(ESFChannel channel, ushort freq, EchoPatternRow patternRow, bool processDelay = true)
+		static private void SetPSGNoiseFrequencyEvent(ESFChannel channel, ushort freq, EchoPatternRow patternRow, string comment, bool processDelay = true)
 		{
 			if (processDelay) WaitEvent(patternRow.Events);
-			patternRow.Events.Add(new SetPSGNoiseFrequency(channel, freq));
+			patternRow.Events.Add(new SetPSGNoiseFrequency(channel, freq, comment));
 		}
 
 		static private void NoteOnEvent(ESFChannel channel, byte note, byte octave, byte instrumentIndex, EchoPatternRow patternRow, bool processDelay)
