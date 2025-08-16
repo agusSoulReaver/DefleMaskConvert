@@ -15,6 +15,8 @@ namespace DefleMaskConvert.DAO.DefleMask
 			Custom
 		}
 
+		public int PageIndex { get; set; }
+
 		public string FilePath { get; set; }
 		public string ExportName { get; set; }
 		public bool Export { get; set; }
@@ -67,6 +69,7 @@ namespace DefleMaskConvert.DAO.DefleMask
 		{
 			this.FilePath = "";
 			this.LockChannels = true;
+			this.PageIndex = pageIndex;
 
 			this.HighlightA = other.HighlightA;
 			this.HighlightB = other.HighlightB;

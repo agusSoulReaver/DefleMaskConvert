@@ -35,7 +35,7 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 			_writer.Comment("Labels:");
 			foreach(var data in list)
 			{
-				_writer.Comment(data.ExportName, Moto68KWriter.Separations.Tab);
+				_writer.Comment(string.Format("[{1}] {0}",data.ExportName, data.SFXPageIndex.ToString("X").PadLeft(2, '0')), Moto68KWriter.Separations.Tab);
 			}
 
 			foreach (var data in list)

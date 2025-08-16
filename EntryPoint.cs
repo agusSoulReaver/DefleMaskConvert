@@ -552,6 +552,7 @@ namespace DefleMaskConvert
 
 					EchoESF data = DMF2EchoESF.Convert(fx, activeInstruments);
 					data.ExportName = string.Format(nameFormat, container.ExportName, fx.ExportName);
+					data.SFXPageIndex = fx.PageIndex;
 					_sfxs.Add(data);
 				}
 			}
@@ -690,6 +691,7 @@ namespace DefleMaskConvert
 
 					EchoESF data = DMF2EchoESF.Convert(fx, activeInstruments);
 					data.ExportName = string.Format(nameFormat, container.ExportName, fx.ExportName);
+					data.SFXPageIndex = fx.PageIndex;
 					_sfxs.Add(data);
 				}
 			}
