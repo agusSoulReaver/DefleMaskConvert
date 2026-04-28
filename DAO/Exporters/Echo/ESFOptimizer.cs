@@ -106,7 +106,7 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 
 								if (canMove)
 								{
-									saveEvents = FindFreeSpace(data.Pages, setInstrument, pageIndex, rowIndex, startPage, startRow, out saveIndex, true);
+									saveEvents = FindFreeSpace(data.Pages, setInstrument, pageIndex, rowIndex, startPage, startRow, out saveIndex);
 									if (saveEvents != null)
 									{
 										events.RemoveAt(index);
@@ -164,7 +164,7 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 						{
 							if (action.IsSameKind(row.Events[eventIndex]))
 							{
-								saveEvents = FindFreeSpace(data.Pages, action, pageIndex, rowIndex, startPage, startRow, out saveIndex, true);
+								saveEvents = FindFreeSpace(data.Pages, action, pageIndex, rowIndex, startPage, startRow, out saveIndex);
 								if (saveEvents != null)
 								{
 									events.RemoveAt(index);
@@ -236,7 +236,7 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 											pageIndex, rowIndex,
 											data.Pages.Count - 1,
 											data.Pages[data.Pages.Count - 1].Rows.Count,
-											out saveIndex, false);
+											out saveIndex);
 
 										if (saveEvents == null)
 										{
@@ -285,7 +285,7 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 										pageIndex, rowIndex,
 										data.Pages.Count - 1,
 										data.Pages[data.Pages.Count-1].Rows.Count,
-										out saveIndex, false);
+										out saveIndex);
 
 									if (saveEvents == null)
 									{
@@ -335,7 +335,7 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 			return null;
 		}
 
-		static private List<IEchoEvent> FindFreeSpace(List<EchoPatternPage> pages, IEchoChannelEvent action, int pageLimit, int rowLimit, int startPage, int startRow, out int index, bool cutWhenNoteOn)
+		static private List<IEchoEvent> FindFreeSpace(List<EchoPatternPage> pages, IEchoChannelEvent action, int pageLimit, int rowLimit, int startPage, int startRow, out int index)
 		{
 			index = -1;
 			
@@ -348,7 +348,7 @@ namespace DefleMaskConvert.DAO.Exporters.Echo
 					var row = page.Rows[j];
 					for (int k = row.Events.Count; --k >= 0; )
 					{
-						if (cutWhenNoteOn && row.Events[k] is NoteOnEvent && ((NoteOnEvent)row.Events[k]).Channel == action.Channel) return null;
+						if (row.Events[k] is NoteOnEvent && ((NoteOnEvent)row.Events[k]).Channel == action.Channel) return null;
 
 						if (row.Events[k] is NoteOffEvent && ((NoteOffEvent)row.Events[k]).Channel == action.Channel)
 							return GetFreeSpace(pages, startPage, startRow, i, j + 1, out index);
