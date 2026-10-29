@@ -68,7 +68,9 @@ namespace DefleMaskConvert.DAO.Exporters
 				_writer.Text("-");
 				_writer.Number(2 + (index * 2));
 				_writer.Text(")");
-				_writer.NewLine();
+
+				_writer.Tab();
+				_writer.Comment(string.Format("[{0}]", index.ToString("X").PadLeft(2, '0')));
 			}
 			_writer.DefineConstant((ushort)0);
 			_writer.NewLine();
